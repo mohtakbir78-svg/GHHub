@@ -1,10 +1,9 @@
--- Garden Horizons Admin Script
--- Horizontal Layout + Real Chat (terlihat semua orang)
+-- Garden Horizons Hub
+-- Terbang + Auto Beli Seeds & Gear
 
 local player = game.Players.LocalPlayer
 local rs = game:GetService("RunService")
 local uis = game:GetService("UserInputService")
-local chat = game:GetService("Chat")
 
 local sg = Instance.new("ScreenGui")
 sg.ResetOnSpawn = false
@@ -19,7 +18,14 @@ local DARK  = Color3.fromRGB(14,14,22)
 local CARD  = Color3.fromRGB(24,24,36)
 local GRAY  = Color3.fromRGB(120,120,140)
 local GOLD  = Color3.fromRGB(240,190,50)
-local PURP  = Color3.fromRGB(120,60,200)
+
+local rarityColor = {
+    Common    = Color3.fromRGB(160,160,160),
+    Uncommon  = Color3.fromRGB(80,200,100),
+    Rare      = Color3.fromRGB(80,140,220),
+    Epic      = Color3.fromRGB(160,80,220),
+    Legendary = Color3.fromRGB(240,180,40),
+}
 
 local function corner(p, r)
     local c = Instance.new("UICorner")
@@ -28,11 +34,11 @@ local function corner(p, r)
 end
 
 -- ================================
--- MAIN FRAME (horizontal)
+-- MAIN FRAME
 -- ================================
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 590, 0, 262)
-Frame.Position = UDim2.new(0.5, -295, 0.5, -131)
+Frame.Size = UDim2.new(0, 360, 0, 300)
+Frame.Position = UDim2.new(0.5, -180, 0.5, -150)
 Frame.BackgroundColor3 = DARK
 Frame.BorderSizePixel = 0
 Frame.Visible = true
@@ -41,61 +47,61 @@ Frame.ClipsDescendants = true
 Frame.Parent = sg
 corner(Frame, 14)
 local fStroke = Instance.new("UIStroke")
-fStroke.Color = Color3.fromRGB(60,55,10)
+fStroke.Color = Color3.fromRGB(40,80,45)
 fStroke.Thickness = 1.5
 fStroke.Parent = Frame
 
 -- TITLE BAR
 local TBar = Instance.new("Frame")
-TBar.Size = UDim2.new(1, 0, 0, 42)
-TBar.BackgroundColor3 = Color3.fromRGB(30,28,10)
+TBar.Size = UDim2.new(1, 0, 0, 40)
+TBar.BackgroundColor3 = Color3.fromRGB(18,36,20)
 TBar.BorderSizePixel = 0
 TBar.ZIndex = 101
 TBar.Parent = Frame
 corner(TBar, 14)
 
 local TFix = Instance.new("Frame")
-TFix.Size = UDim2.new(1, 0, 0, 12)
-TFix.Position = UDim2.new(0, 0, 1, -12)
-TFix.BackgroundColor3 = Color3.fromRGB(30,28,10)
+TFix.Size = UDim2.new(1, 0, 0, 10)
+TFix.Position = UDim2.new(0, 0, 1, -10)
+TFix.BackgroundColor3 = Color3.fromRGB(18,36,20)
 TFix.BorderSizePixel = 0
 TFix.ZIndex = 101
 TFix.Parent = TBar
 
 local TLbl = Instance.new("TextLabel")
-TLbl.Size = UDim2.new(1, -60, 1, 0)
-TLbl.Position = UDim2.new(0, 14, 0, 0)
+TLbl.Size = UDim2.new(1, -50, 1, 0)
+TLbl.Position = UDim2.new(0, 12, 0, 0)
 TLbl.BackgroundTransparency = 1
-TLbl.Text = "⚡ GH Admin Hub  •  ☰ tahan & geser"
-TLbl.TextColor3 = GOLD
+TLbl.Text = "🌱 GH Hub  •  ☰ geser"
+TLbl.TextColor3 = GREEN
 TLbl.Font = Enum.Font.GothamBold
 TLbl.TextSize = 14
 TLbl.TextXAlignment = Enum.TextXAlignment.Left
 TLbl.ZIndex = 102
 TLbl.Parent = TBar
 
--- TOMBOL X (parent ke sg, biar tidak terpotong)
+-- TOMBOL X (parent sg biar tidak terpotong)
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 36, 0, 36)
+CloseBtn.Size = UDim2.new(0, 34, 0, 34)
 CloseBtn.BackgroundColor3 = RED
 CloseBtn.Text = "✕"
 CloseBtn.TextColor3 = WHITE
 CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 18
+CloseBtn.TextSize = 16
 CloseBtn.ZIndex = 99999
 CloseBtn.Parent = sg
 corner(CloseBtn, 8)
 
-local function updateClosePos()
+local function updateClose()
     local fp = Frame.AbsolutePosition
     local fs = Frame.AbsoluteSize
-    CloseBtn.Position = UDim2.new(0, fp.X + fs.X - 42, 0, fp.Y + 4)
+    CloseBtn.Position = UDim2.new(0, fp.X + fs.X - 38, 0, fp.Y + 4)
 end
-Frame:GetPropertyChangedSignal("AbsolutePosition"):Connect(updateClosePos)
-Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateClosePos)
-updateClosePos()
+Frame:GetPropertyChangedSignal("AbsolutePosition"):Connect(updateClose)
+Frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(updateClose)
+updateClose()
 
--- DRAG
+-- DRAG FRAME
 local drag, dragStart, startPos = false, nil, nil
 TBar.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -111,211 +117,338 @@ uis.InputChanged:Connect(function(i)
     if drag and (i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseMove) then
         local d = i.Position - dragStart
         Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset+d.X, startPos.Y.Scale, startPos.Y.Offset+d.Y)
-        updateClosePos()
+        updateClose()
     end
 end)
 
 -- ================================
--- CONTENT (horizontal columns)
+-- SECTION TERBANG (atas)
 -- ================================
-local Content = Instance.new("Frame")
-Content.Size = UDim2.new(1, -10, 1, -48)
-Content.Position = UDim2.new(0, 5, 0, 44)
-Content.BackgroundTransparency = 1
-Content.ZIndex = 101
-Content.Parent = Frame
+local FlySection = Instance.new("Frame")
+FlySection.Size = UDim2.new(1, -12, 0, 94)
+FlySection.Position = UDim2.new(0, 6, 0, 46)
+FlySection.BackgroundColor3 = CARD
+FlySection.BorderSizePixel = 0
+FlySection.ZIndex = 101
+FlySection.Parent = Frame
+corner(FlySection, 10)
 
-local HLayout = Instance.new("UIListLayout")
-HLayout.FillDirection = Enum.FillDirection.Horizontal
-HLayout.SortOrder = Enum.SortOrder.LayoutOrder
-HLayout.Padding = UDim.new(0, 6)
-HLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-HLayout.Parent = Content
+local FlyTitle = Instance.new("TextLabel")
+FlyTitle.Size = UDim2.new(1, -12, 0, 22)
+FlyTitle.Position = UDim2.new(0, 8, 0, 4)
+FlyTitle.BackgroundTransparency = 1
+FlyTitle.Text = "✈️ Terbang"
+FlyTitle.TextColor3 = WHITE
+FlyTitle.Font = Enum.Font.GothamBold
+FlyTitle.TextSize = 13
+FlyTitle.TextXAlignment = Enum.TextXAlignment.Left
+FlyTitle.ZIndex = 102
+FlyTitle.Parent = FlySection
 
-local function mkCol(order, w)
-    local f = Instance.new("Frame")
-    f.Size = UDim2.new(0, w or 128, 1, -8)
-    f.BackgroundColor3 = CARD
-    f.BorderSizePixel = 0
-    f.LayoutOrder = order
-    f.ZIndex = 102
-    f.Parent = Content
-    corner(f, 10)
-    return f
-end
-
-local function mkColTitle(parent, txt)
-    local l = Instance.new("TextLabel")
-    l.Size = UDim2.new(1,-8,0,24)
-    l.Position = UDim2.new(0,4,0,5)
-    l.BackgroundTransparency = 1
-    l.Text = txt
-    l.TextColor3 = WHITE
-    l.Font = Enum.Font.GothamBold
-    l.TextSize = 13
-    l.TextXAlignment = Enum.TextXAlignment.Center
-    l.ZIndex = 103
-    l.Parent = parent
-end
-
-local function mkValLbl(parent, val, posY)
-    local l = Instance.new("TextLabel")
-    l.Size = UDim2.new(1,0,0,22)
-    l.Position = UDim2.new(0,0,0,posY)
-    l.BackgroundTransparency = 1
-    l.Text = tostring(val)
-    l.TextColor3 = GOLD
-    l.Font = Enum.Font.GothamBold
-    l.TextSize = 18
-    l.TextXAlignment = Enum.TextXAlignment.Center
-    l.ZIndex = 103
-    l.Parent = parent
-    return l
-end
-
-local function mkBtn(parent, txt, posY, h, col)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1,-10,0,h or 26)
-    b.Position = UDim2.new(0,5,0,posY)
-    b.BackgroundColor3 = col or BLUE
-    b.Text = txt
-    b.TextColor3 = WHITE
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 12
-    b.ZIndex = 103
-    b.Parent = parent
-    corner(b, 7)
-    return b
-end
-
-local function mkTogBtn(parent, posY)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1,-10,0,34)
-    b.Position = UDim2.new(0,5,0,posY)
-    b.BackgroundColor3 = Color3.fromRGB(50,50,70)
-    b.Text = "OFF"
-    b.TextColor3 = GRAY
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 14
-    b.ZIndex = 103
-    b.Parent = parent
-    corner(b, 8)
-    return b
-end
-
--- COL 1: TERBANG
-local flyCol = mkCol(1)
-mkColTitle(flyCol, "✈️ Terbang")
 local FlyStatLbl = Instance.new("TextLabel")
-FlyStatLbl.Size = UDim2.new(1,-6,0,18)
-FlyStatLbl.Position = UDim2.new(0,3,0,32)
+FlyStatLbl.Size = UDim2.new(0, 80, 0, 20)
+FlyStatLbl.Position = UDim2.new(1, -88, 0, 4)
 FlyStatLbl.BackgroundTransparency = 1
 FlyStatLbl.Text = "❌ OFF"
 FlyStatLbl.TextColor3 = RED
 FlyStatLbl.Font = Enum.Font.GothamBold
-FlyStatLbl.TextSize = 11
-FlyStatLbl.TextXAlignment = Enum.TextXAlignment.Center
-FlyStatLbl.ZIndex = 103
-FlyStatLbl.Parent = flyCol
+FlyStatLbl.TextSize = 12
+FlyStatLbl.TextXAlignment = Enum.TextXAlignment.Right
+FlyStatLbl.ZIndex = 102
+FlyStatLbl.Parent = FlySection
 
-local FlySpeedLbl = mkValLbl(flyCol, "60", 52)
-local FlyDecBtn   = mkBtn(flyCol, "- 10",       76,  24, Color3.fromRGB(140,50,20))
-local FlyIncBtn   = mkBtn(flyCol, "+ 10",       106, 24, Color3.fromRGB(30,90,160))
-local FlyTogBtn   = mkBtn(flyCol, "✈️ Aktifkan", 136, 28, GREEN)
-local NaikBtn     = mkBtn(flyCol, "⬆️ Naik",    170, 24, Color3.fromRGB(30,120,50))
-local TurunBtn    = mkBtn(flyCol, "⬇️ Turun",   200, 24, Color3.fromRGB(160,40,40))
+-- Row tombol: Naik | Toggle | Turun
+local NaikBtn = Instance.new("TextButton")
+NaikBtn.Size = UDim2.new(0, 90, 0, 34)
+NaikBtn.Position = UDim2.new(0, 6, 0, 30)
+NaikBtn.BackgroundColor3 = Color3.fromRGB(30,120,50)
+NaikBtn.Text = "⬆️  Naik"
+NaikBtn.TextColor3 = WHITE
+NaikBtn.Font = Enum.Font.GothamBold
+NaikBtn.TextSize = 13
+NaikBtn.ZIndex = 102
+NaikBtn.Parent = FlySection
+corner(NaikBtn, 8)
 
--- COL 2: SPEED
-local sbCol = mkCol(2)
-mkColTitle(sbCol, "🏃 Speed")
-local sbVal = 16
-local sbLbl = mkValLbl(sbCol, sbVal, 32)
-local sbDec = mkBtn(sbCol, "- 5",    58,  24, Color3.fromRGB(140,50,20))
-local sbInc = mkBtn(sbCol, "+ 5",    88,  24, Color3.fromRGB(30,90,160))
-local sbSet = mkBtn(sbCol, "✅ Set", 120, 30, BLUE)
+local FlyTogBtn = Instance.new("TextButton")
+FlyTogBtn.Size = UDim2.new(1, -200, 0, 34)
+FlyTogBtn.Position = UDim2.new(0, 102, 0, 30)
+FlyTogBtn.BackgroundColor3 = GREEN
+FlyTogBtn.Text = "✈️ Aktifkan"
+FlyTogBtn.TextColor3 = WHITE
+FlyTogBtn.Font = Enum.Font.GothamBold
+FlyTogBtn.TextSize = 13
+FlyTogBtn.ZIndex = 102
+FlyTogBtn.Parent = FlySection
+corner(FlyTogBtn, 8)
 
--- COL 3: JUMP
-local jpCol = mkCol(3)
-mkColTitle(jpCol, "🦘 Jump")
-local jpVal = 50
-local jpLbl = mkValLbl(jpCol, jpVal, 32)
-local jpDec = mkBtn(jpCol, "- 10",   58,  24, Color3.fromRGB(140,50,20))
-local jpInc = mkBtn(jpCol, "+ 10",   88,  24, Color3.fromRGB(30,90,160))
-local jpSet = mkBtn(jpCol, "✅ Set", 120, 30, PURP)
+local TurunBtn = Instance.new("TextButton")
+TurunBtn.Size = UDim2.new(0, 90, 0, 34)
+TurunBtn.Position = UDim2.new(1, -96, 0, 30)
+TurunBtn.BackgroundColor3 = Color3.fromRGB(160,40,40)
+TurunBtn.Text = "⬇️  Turun"
+TurunBtn.TextColor3 = WHITE
+TurunBtn.Font = Enum.Font.GothamBold
+TurunBtn.TextSize = 13
+TurunBtn.ZIndex = 102
+TurunBtn.Parent = FlySection
+corner(TurunBtn, 8)
 
--- COL 4: INVISIBLE
-local invCol = mkCol(4)
-mkColTitle(invCol, "👻 Invis")
-local invBtn = mkTogBtn(invCol, 38)
+-- Kecepatan row
+local SpeedLbl = Instance.new("TextLabel")
+SpeedLbl.Size = UDim2.new(0, 100, 0, 22)
+SpeedLbl.Position = UDim2.new(0, 8, 0, 68)
+SpeedLbl.BackgroundTransparency = 1
+SpeedLbl.Text = "⚡ Speed: 60"
+SpeedLbl.TextColor3 = GOLD
+SpeedLbl.Font = Enum.Font.GothamBold
+SpeedLbl.TextSize = 12
+SpeedLbl.TextXAlignment = Enum.TextXAlignment.Left
+SpeedLbl.ZIndex = 102
+SpeedLbl.Parent = FlySection
 
--- COL 5: CHAT (kirim ke chat Roblox, terlihat semua orang)
-local chatCol = mkCol(5, 152)
-mkColTitle(chatCol, "💬 Chat (Semua Lihat)")
+local SDecBtn = Instance.new("TextButton")
+SDecBtn.Size = UDim2.new(0, 60, 0, 22)
+SDecBtn.Position = UDim2.new(0, 110, 0, 68)
+SDecBtn.BackgroundColor3 = Color3.fromRGB(140,50,20)
+SDecBtn.Text = "- 10"
+SDecBtn.TextColor3 = WHITE
+SDecBtn.Font = Enum.Font.GothamBold
+SDecBtn.TextSize = 11
+SDecBtn.ZIndex = 102
+SDecBtn.Parent = FlySection
+corner(SDecBtn, 6)
 
--- Info label
-local chatInfoLbl = Instance.new("TextLabel")
-chatInfoLbl.Size = UDim2.new(1,-8,0,16)
-chatInfoLbl.Position = UDim2.new(0,4,0,30)
-chatInfoLbl.BackgroundTransparency = 1
-chatInfoLbl.Text = "📢 Terlihat semua orang!"
-chatInfoLbl.TextColor3 = GREEN
-chatInfoLbl.Font = Enum.Font.Gotham
-chatInfoLbl.TextSize = 10
-chatInfoLbl.TextXAlignment = Enum.TextXAlignment.Center
-chatInfoLbl.ZIndex = 103
-chatInfoLbl.Parent = chatCol
+local SIncBtn = Instance.new("TextButton")
+SIncBtn.Size = UDim2.new(0, 60, 0, 22)
+SIncBtn.Position = UDim2.new(0, 176, 0, 68)
+SIncBtn.BackgroundColor3 = Color3.fromRGB(30,90,160)
+SIncBtn.Text = "+ 10"
+SIncBtn.TextColor3 = WHITE
+SIncBtn.Font = Enum.Font.GothamBold
+SIncBtn.TextSize = 11
+SIncBtn.ZIndex = 102
+SIncBtn.Parent = FlySection
+corner(SIncBtn, 6)
 
-local chatBox = Instance.new("TextBox")
-chatBox.Size = UDim2.new(1,-10,0,36)
-chatBox.Position = UDim2.new(0,5,0,50)
-chatBox.BackgroundColor3 = Color3.fromRGB(18,18,28)
-chatBox.Text = ""
-chatBox.PlaceholderText = "Tulis pesan..."
-chatBox.PlaceholderColor3 = GRAY
-chatBox.TextColor3 = WHITE
-chatBox.Font = Enum.Font.Gotham
-chatBox.TextSize = 11
-chatBox.ZIndex = 103
-chatBox.ClearTextOnFocus = false
-chatBox.TextWrapped = true
-chatBox.Parent = chatCol
-corner(chatBox, 7)
-local cStroke = Instance.new("UIStroke")
-cStroke.Color = Color3.fromRGB(50,60,80)
-cStroke.Thickness = 1
-cStroke.Parent = chatBox
+-- ================================
+-- SECTION AUTO BELI (bawah, scrollable horizontal)
+-- ================================
+local BuyLabel = Instance.new("TextLabel")
+BuyLabel.Size = UDim2.new(1, -80, 0, 22)
+BuyLabel.Position = UDim2.new(0, 8, 0, 148)
+BuyLabel.BackgroundTransparency = 1
+BuyLabel.Text = "🛒 Auto Beli Seeds & Gear"
+BuyLabel.TextColor3 = WHITE
+BuyLabel.Font = Enum.Font.GothamBold
+BuyLabel.TextSize = 13
+BuyLabel.TextXAlignment = Enum.TextXAlignment.Left
+BuyLabel.ZIndex = 101
+BuyLabel.Parent = Frame
 
-local sendBtn  = mkBtn(chatCol, "📢 Kirim Chat", 92,  32, GREEN)
-local resetBtn = mkBtn(chatCol, "↺ Reset",       130, 26, Color3.fromRGB(55,60,80))
+local BuyStatLbl = Instance.new("TextLabel")
+BuyStatLbl.Size = UDim2.new(0, 70, 0, 22)
+BuyStatLbl.Position = UDim2.new(1, -76, 0, 148)
+BuyStatLbl.BackgroundTransparency = 1
+BuyStatLbl.Text = "❌ OFF"
+BuyStatLbl.TextColor3 = RED
+BuyStatLbl.Font = Enum.Font.GothamBold
+BuyStatLbl.TextSize = 12
+BuyStatLbl.TextXAlignment = Enum.TextXAlignment.Right
+BuyStatLbl.ZIndex = 101
+BuyStatLbl.Parent = Frame
 
--- Status kirim
-local chatStatusLbl = Instance.new("TextLabel")
-chatStatusLbl.Size = UDim2.new(1,-8,0,16)
-chatStatusLbl.Position = UDim2.new(0,4,0,160)
-chatStatusLbl.BackgroundTransparency = 1
-chatStatusLbl.Text = ""
-chatStatusLbl.TextColor3 = GREEN
-chatStatusLbl.Font = Enum.Font.GothamBold
-chatStatusLbl.TextSize = 10
-chatStatusLbl.TextXAlignment = Enum.TextXAlignment.Center
-chatStatusLbl.ZIndex = 103
-chatStatusLbl.Parent = chatCol
+-- Scroll horizontal untuk item cards
+local ItemScroll = Instance.new("ScrollingFrame")
+ItemScroll.Size = UDim2.new(1, -12, 0, 96)
+ItemScroll.Position = UDim2.new(0, 6, 0, 172)
+ItemScroll.BackgroundColor3 = CARD
+ItemScroll.BorderSizePixel = 0
+ItemScroll.ScrollBarThickness = 4
+ItemScroll.ScrollBarImageColor3 = GREEN
+ItemScroll.ScrollingDirection = Enum.ScrollingDirection.X
+ItemScroll.ZIndex = 101
+ItemScroll.Parent = Frame
+corner(ItemScroll, 10)
+
+local ItemLayout = Instance.new("UIListLayout")
+ItemLayout.FillDirection = Enum.FillDirection.Horizontal
+ItemLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ItemLayout.Padding = UDim.new(0, 6)
+ItemLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+ItemLayout.Parent = ItemScroll
+
+local UIPad = Instance.new("UIPadding")
+UIPad.PaddingLeft = UDim.new(0, 6)
+UIPad.PaddingRight = UDim.new(0, 6)
+UIPad.Parent = ItemScroll
+
+-- Toggle Auto Beli
+local BuyTogBtn = Instance.new("TextButton")
+BuyTogBtn.Size = UDim2.new(1, -12, 0, 28)
+BuyTogBtn.Position = UDim2.new(0, 6, 0, 270)
+BuyTogBtn.BackgroundColor3 = BLUE
+BuyTogBtn.Text = "🛒 Aktifkan Auto Beli"
+BuyTogBtn.TextColor3 = WHITE
+BuyTogBtn.Font = Enum.Font.GothamBold
+BuyTogBtn.TextSize = 13
+BuyTogBtn.ZIndex = 101
+BuyTogBtn.Parent = Frame
+corner(BuyTogBtn, 8)
+
+-- ================================
+-- DATABASE ITEMS
+-- ================================
+local items = {
+    -- SEEDS
+    {n="Carrot",      icon="🥕", t="seed", r="Common"},
+    {n="Corn",        icon="🌽", t="seed", r="Common"},
+    {n="Dandelion",   icon="🌼", t="seed", r="Common"},
+    {n="Sunpetal",    icon="🌻", t="seed", r="Common"},
+    {n="Onion",       icon="🧅", t="seed", r="Uncommon"},
+    {n="Strawberry",  icon="🍓", t="seed", r="Uncommon"},
+    {n="Mushroom",    icon="🍄", t="seed", r="Uncommon"},
+    {n="Bell Pepper", icon="🫑", t="seed", r="Uncommon"},
+    {n="Goldenberry", icon="🫐", t="seed", r="Uncommon"},
+    {n="Beetroot",    icon="🟣", t="seed", r="Rare"},
+    {n="Tomato",      icon="🍅", t="seed", r="Rare"},
+    {n="Apple",       icon="🍎", t="seed", r="Rare"},
+    {n="Rose",        icon="🌹", t="seed", r="Rare"},
+    {n="Birch",       icon="🌳", t="seed", r="Rare"},
+    {n="Amber Pine",  icon="🌲", t="seed", r="Rare"},
+    {n="Wheat",       icon="🌾", t="seed", r="Epic"},
+    {n="Banana",      icon="🍌", t="seed", r="Epic"},
+    {n="Plum",        icon="🍑", t="seed", r="Epic"},
+    {n="Potato",      icon="🥔", t="seed", r="Epic"},
+    {n="Orange",      icon="🍊", t="seed", r="Epic"},
+    {n="Cabbage",     icon="🥬", t="seed", r="Legendary"},
+    {n="Cherry",      icon="🍒", t="seed", r="Legendary"},
+    {n="Olive",       icon="🫒", t="seed", r="Legendary"},
+    {n="Dawnfruit",   icon="🌟", t="seed", r="Legendary"},
+    -- GEAR
+    {n="Trowel",         icon="🔧", t="gear", r="Common"},
+    {n="Shovel",         icon="⛏️", t="gear", r="Common"},
+    {n="Watering Can",   icon="💧", t="gear", r="Common"},
+    {n="Basic Sprinkler",icon="🚿", t="gear", r="Uncommon"},
+    {n="Harvesting Bell",icon="🔔", t="gear", r="Rare"},
+    {n="Turbo Sprinkler",icon="💦", t="gear", r="Epic"},
+    {n="Favoriting Tool",icon="⭐", t="gear", r="Epic"},
+    {n="Super Sprinkler",icon="🌊", t="gear", r="Legendary"},
+}
+
+local autoBuyList = {}
+local itemRefs = {}
+
+-- Buat card per item
+for i, item in ipairs(items) do
+    local card = Instance.new("Frame")
+    card.Size = UDim2.new(0, 80, 0, 82)
+    card.BackgroundColor3 = Color3.fromRGB(18,20,30)
+    card.BorderSizePixel = 0
+    card.LayoutOrder = i
+    card.ZIndex = 102
+    card.Parent = ItemScroll
+    corner(card, 8)
+
+    -- Rarity strip atas
+    local strip = Instance.new("Frame")
+    strip.Size = UDim2.new(1, 0, 0, 4)
+    strip.BackgroundColor3 = rarityColor[item.r] or GRAY
+    strip.BorderSizePixel = 0
+    strip.ZIndex = 103
+    strip.Parent = card
+    corner(strip, 4)
+
+    local iconL = Instance.new("TextLabel")
+    iconL.Size = UDim2.new(1, 0, 0, 28)
+    iconL.Position = UDim2.new(0, 0, 0, 6)
+    iconL.BackgroundTransparency = 1
+    iconL.Text = item.icon
+    iconL.TextScaled = true
+    iconL.ZIndex = 103
+    iconL.Parent = card
+
+    local nameL = Instance.new("TextLabel")
+    nameL.Size = UDim2.new(1, -4, 0, 24)
+    nameL.Position = UDim2.new(0, 2, 0, 34)
+    nameL.BackgroundTransparency = 1
+    nameL.Text = item.n
+    nameL.TextColor3 = WHITE
+    nameL.Font = Enum.Font.GothamBold
+    nameL.TextSize = 9
+    nameL.TextWrapped = true
+    nameL.TextXAlignment = Enum.TextXAlignment.Center
+    nameL.ZIndex = 103
+    nameL.Parent = card
+
+    local rarL = Instance.new("TextLabel")
+    rarL.Size = UDim2.new(1, -4, 0, 14)
+    rarL.Position = UDim2.new(0, 2, 0, 56)
+    rarL.BackgroundTransparency = 1
+    rarL.Text = item.r
+    rarL.TextColor3 = rarityColor[item.r] or GRAY
+    rarL.Font = Enum.Font.Gotham
+    rarL.TextSize = 8
+    rarL.TextXAlignment = Enum.TextXAlignment.Center
+    rarL.ZIndex = 103
+    rarL.Parent = card
+
+    -- Checkbox toggle
+    local chk = Instance.new("TextButton")
+    chk.Size = UDim2.new(1, -10, 0, 16)
+    chk.Position = UDim2.new(0, 5, 1, -20)
+    chk.BackgroundColor3 = Color3.fromRGB(35,38,50)
+    chk.Text = "OFF"
+    chk.TextColor3 = GRAY
+    chk.Font = Enum.Font.GothamBold
+    chk.TextSize = 9
+    chk.ZIndex = 104
+    chk.Parent = card
+    corner(chk, 5)
+
+    local on = false
+    chk.MouseButton1Click:Connect(function()
+        on = not on
+        autoBuyList[item.n] = on
+        if on then
+            chk.BackgroundColor3 = GREEN
+            chk.TextColor3 = WHITE
+            chk.Text = "ON"
+            card.BackgroundColor3 = Color3.fromRGB(18,30,20)
+            strip.BackgroundColor3 = GREEN
+        else
+            chk.BackgroundColor3 = Color3.fromRGB(35,38,50)
+            chk.TextColor3 = GRAY
+            chk.Text = "OFF"
+            card.BackgroundColor3 = Color3.fromRGB(18,20,30)
+            strip.BackgroundColor3 = rarityColor[item.r] or GRAY
+        end
+    end)
+
+    table.insert(itemRefs, {card=card, item=item})
+end
+
+-- Update canvas size
+ItemLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ItemScroll.CanvasSize = UDim2.new(0, ItemLayout.AbsoluteContentSize.X + 12, 0, 0)
+end)
+ItemScroll.CanvasSize = UDim2.new(0, (#items * 86) + 12, 0, 0)
 
 -- ================================
 -- TOMBOL BUKA ⚡
 -- ================================
 local openBtn = Instance.new("TextButton")
-openBtn.Size = UDim2.new(0,60,0,60)
-openBtn.Position = UDim2.new(0,16,0.45,0)
+openBtn.Size = UDim2.new(0, 56, 0, 56)
+openBtn.Position = UDim2.new(0, 16, 0.45, 0)
 openBtn.BackgroundColor3 = DARK
-openBtn.Text = "⚡"
+openBtn.Text = "🌱"
 openBtn.TextScaled = true
 openBtn.ZIndex = 9999
 openBtn.Visible = false
 openBtn.Parent = sg
-corner(openBtn, 30)
+corner(openBtn, 28)
 local obStroke = Instance.new("UIStroke")
-obStroke.Color = GOLD
+obStroke.Color = GREEN
 obStroke.Thickness = 2
 obStroke.Parent = openBtn
 
@@ -402,8 +535,6 @@ end)
 FlyTogBtn.MouseButton1Click:Connect(function()
     if flying then stopFly() else startFly() end
 end)
-FlyDecBtn.MouseButton1Click:Connect(function() flySpeed = math.max(10,flySpeed-10); FlySpeedLbl.Text = tostring(flySpeed) end)
-FlyIncBtn.MouseButton1Click:Connect(function() flySpeed = math.min(300,flySpeed+10); FlySpeedLbl.Text = tostring(flySpeed) end)
 
 NaikBtn.MouseButton1Down:Connect(function() goUp = true end)
 NaikBtn.MouseButton1Up:Connect(function()   goUp = false end)
@@ -415,107 +546,17 @@ TurunBtn.MouseButton1Up:Connect(function()   goDown = false end)
 TurunBtn.TouchStarted:Connect(function() goDown = true end)
 TurunBtn.TouchEnded:Connect(function()   goDown = false end)
 
--- ================================
--- LOGIKA ADMIN
--- ================================
-local isInvis = false
-
-local function applySpeed(v)
-    local char = player.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum then hum.WalkSpeed = v end
-end
-
-local function applyJump(v)
-    local char = player.Character
-    if not char then return end
-    local hum = char:FindFirstChildOfClass("Humanoid")
-    if hum then hum.JumpPower = v end
-end
-
-local function applyInvis(state)
-    local char = player.Character
-    if not char then return end
-    for _, p in ipairs(char:GetDescendants()) do
-        if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then
-            p.Transparency = state and 1 or 0
-        end
-        if p:IsA("Decal") then p.Transparency = state and 1 or 0 end
-    end
-end
-
-sbDec.MouseButton1Click:Connect(function() sbVal = math.max(1,sbVal-5);   sbLbl.Text = tostring(sbVal) end)
-sbInc.MouseButton1Click:Connect(function() sbVal = math.min(500,sbVal+5); sbLbl.Text = tostring(sbVal) end)
-sbSet.MouseButton1Click:Connect(function() applySpeed(sbVal) end)
-
-jpDec.MouseButton1Click:Connect(function() jpVal = math.max(1,jpVal-10);   jpLbl.Text = tostring(jpVal) end)
-jpInc.MouseButton1Click:Connect(function() jpVal = math.min(500,jpVal+10); jpLbl.Text = tostring(jpVal) end)
-jpSet.MouseButton1Click:Connect(function() applyJump(jpVal) end)
-
-invBtn.MouseButton1Click:Connect(function()
-    isInvis = not isInvis
-    applyInvis(isInvis)
-    invBtn.BackgroundColor3 = isInvis and GREEN or Color3.fromRGB(50,50,70)
-    invBtn.TextColor3       = isInvis and WHITE or GRAY
-    invBtn.Text = isInvis and "ON" or "OFF"
+SDecBtn.MouseButton1Click:Connect(function()
+    flySpeed = math.max(10, flySpeed-10)
+    SpeedLbl.Text = "⚡ Speed: " .. flySpeed
 end)
-
--- ================================
--- KIRIM CHAT (terlihat semua orang)
--- ================================
-sendBtn.MouseButton1Click:Connect(function()
-    local msg = chatBox.Text
-    if msg == "" then return end
-
-    -- Cara 1: via Chat service (paling kompatibel di exploit)
-    local ok = false
-    pcall(function()
-        chat:Chat(player.Character, msg, Enum.ChatColor.White)
-        ok = true
-    end)
-
-    -- Cara 2: via ReplicatedStorage SayMessageRequest
-    if not ok then
-        pcall(function()
-            local remote = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
-            if remote then
-                local sayMsg = remote:FindFirstChild("SayMessageRequest")
-                if sayMsg then
-                    sayMsg:FireServer(msg, "All")
-                    ok = true
-                end
-            end
-        end)
-    end
-
-    -- Cara 3: simulate keyboard input chat
-    if not ok then
-        pcall(function()
-            game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
-            ok = true
-        end)
-    end
-
-    chatBox.Text = ""
-    chatStatusLbl.Text = ok and "✅ Terkirim!" or "⚠️ Coba lagi"
-    chatStatusLbl.TextColor3 = ok and GREEN or GOLD
-    task.delay(2, function() chatStatusLbl.Text = "" end)
-end)
-
-resetBtn.MouseButton1Click:Connect(function()
-    sbVal = 16; sbLbl.Text = "16"; applySpeed(16)
-    jpVal = 50; jpLbl.Text = "50"; applyJump(50)
-    isInvis = false; applyInvis(false)
-    invBtn.BackgroundColor3 = Color3.fromRGB(50,50,70)
-    invBtn.TextColor3 = GRAY; invBtn.Text = "OFF"
-    stopFly()
+SIncBtn.MouseButton1Click:Connect(function()
+    flySpeed = math.min(300, flySpeed+10)
+    SpeedLbl.Text = "⚡ Speed: " .. flySpeed
 end)
 
 player.CharacterAdded:Connect(function()
     task.wait(0.5)
-    applySpeed(sbVal); applyJump(jpVal)
-    if isInvis then applyInvis(true) end
     flying = false; bv = nil; bg = nil
     FlyTogBtn.Text = "✈️ Aktifkan"
     FlyTogBtn.BackgroundColor3 = GREEN
@@ -523,15 +564,42 @@ player.CharacterAdded:Connect(function()
     FlyStatLbl.TextColor3 = RED
 end)
 
--- OPEN / CLOSE
-CloseBtn.MouseButton1Click:Connect(function()
-    Frame.Visible = false
-    CloseBtn.Visible = false
-    openBtn.Visible = true
-end)
-openBtn.MouseButton1Click:Connect(function()
-    Frame.Visible = true
-    CloseBtn.Visible = true
-    openBtn.Visible = false
-    updateClosePos()
-end)
+-- ================================
+-- LOGIKA AUTO BELI
+-- ================================
+local autoBuying = false
+
+local function tryBuy(itemName)
+    local rs2 = game:GetService("ReplicatedStorage")
+    for _, obj in ipairs(rs2:GetDescendants()) do
+        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+            local n = obj.Name:lower()
+            if n:find("buy") or n:find("purchase") or n:find("shop") then
+                pcall(function()
+                    if obj:IsA("RemoteEvent") then
+                        obj:FireServer(itemName)
+                        obj:FireServer(itemName, 1)
+                        obj:FireServer({name=itemName, amount=1})
+                    end
+                end)
+            end
+        end
+    end
+end
+
+BuyTogBtn.MouseButton1Click:Connect(function()
+    autoBuying = not autoBuying
+    if autoBuying then
+        BuyTogBtn.Text = "🛑 Matikan Auto Beli"
+        BuyTogBtn.BackgroundColor3 = RED
+        BuyStatLbl.Text = "✅ ON"
+        BuyStatLbl.TextColor3 = GREEN
+        task.spawn(function()
+            while autoBuying do
+                for name, active in pairs(autoBuyList) do
+                    if active then pcall(tryBuy, name) end
+                end
+                task.wait(2)
+            end
+        end)
+   
