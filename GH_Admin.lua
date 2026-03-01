@@ -26,7 +26,7 @@ local function corner(p, r)
 end
 
 -- ================================
--- TOMBOL BUKA (bisa digeser)
+-- TOMBOL BUKA ⚡ (bisa digeser)
 -- ================================
 local openBtn = Instance.new("TextButton")
 openBtn.Size = UDim2.new(0,65,0,65)
@@ -42,7 +42,6 @@ obStroke.Color = GOLD
 obStroke.Thickness = 2
 obStroke.Parent = openBtn
 
--- Drag openBtn
 local obDrag, obDragStart, obStartPos = false, nil, nil
 openBtn.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -62,14 +61,14 @@ uis.InputChanged:Connect(function(i)
 end)
 
 -- ================================
--- MAIN FRAME
+-- MAIN FRAME (langsung terbuka)
 -- ================================
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0,320,0,500)
-Frame.Position = UDim2.new(0.5,-160,0.5,-250)
+Frame.Size = UDim2.new(0,320,0,460)
+Frame.Position = UDim2.new(0.5,-160,0.5,-230)
 Frame.BackgroundColor3 = DARK
 Frame.BorderSizePixel = 0
-Frame.Visible = false
+Frame.Visible = true
 Frame.ZIndex = 100
 Frame.ClipsDescendants = true
 Frame.Parent = sg
@@ -120,7 +119,6 @@ THint.TextXAlignment = Enum.TextXAlignment.Left
 THint.ZIndex = 102
 THint.Parent = TBar
 
--- Drag Frame
 local drag, dragStart, startPos = false, nil, nil
 TBar.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -139,21 +137,21 @@ uis.InputChanged:Connect(function(i)
     end
 end)
 
--- Close
+-- CLOSE X
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0,32,0,32)
-CloseBtn.Position = UDim2.new(1,-38,0,8)
+CloseBtn.Size = UDim2.new(0,34,0,34)
+CloseBtn.Position = UDim2.new(1,-38,0,7)
 CloseBtn.BackgroundColor3 = RED
 CloseBtn.Text = "✕"
 CloseBtn.TextColor3 = WHITE
 CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 14
+CloseBtn.TextSize = 16
 CloseBtn.ZIndex = 103
 CloseBtn.Parent = TBar
 corner(CloseBtn, 8)
 
 -- ================================
--- SCROLL CONTENT
+-- SCROLL
 -- ================================
 local Scroll = Instance.new("ScrollingFrame")
 Scroll.Size = UDim2.new(1,-14,1,-58)
@@ -243,20 +241,6 @@ local function mkToggleBtn(parent, posY)
     return b
 end
 
-local function mkBigBtn(parent, txt, col)
-    local b = Instance.new("TextButton")
-    b.Size = UDim2.new(1,0,0,44)
-    b.BackgroundColor3 = col or GREEN
-    b.Text = txt
-    b.TextColor3 = WHITE
-    b.Font = Enum.Font.GothamBold
-    b.TextSize = 14
-    b.ZIndex = 103
-    b.Parent = Scroll
-    corner(b, 10)
-    return b
-end
-
 -- ================================
 -- TERBANG
 -- ================================
@@ -276,13 +260,12 @@ FlyStatLbl.ZIndex = 103
 FlyStatLbl.Parent = flyCard
 
 local FlySpeedLbl = mkValLabel(flyCard, "60", 52)
-
-local FlyDecBtn = mkSmlBtn(flyCard, "-10", UDim2.new(0,55,0,22), UDim2.new(0,6,0,56), Color3.fromRGB(140,50,20))
+local FlyDecBtn = mkSmlBtn(flyCard, "-10", UDim2.new(0,55,0,22), UDim2.new(0,6,0,56),   Color3.fromRGB(140,50,20))
 local FlyIncBtn = mkSmlBtn(flyCard, "+10", UDim2.new(0,55,0,22), UDim2.new(1,-61,0,56), Color3.fromRGB(30,90,160))
 
 local FlyTogBtn = Instance.new("TextButton")
-FlyTogBtn.Size = UDim2.new(1,-12,0,32)
-FlyTogBtn.Position = UDim2.new(0,6,0,86)
+FlyTogBtn.Size = UDim2.new(1,-12,0,30)
+FlyTogBtn.Position = UDim2.new(0,6,0,84)
 FlyTogBtn.BackgroundColor3 = GREEN
 FlyTogBtn.Text = "✈️ Aktifkan Terbang"
 FlyTogBtn.TextColor3 = WHITE
@@ -292,17 +275,9 @@ FlyTogBtn.ZIndex = 103
 FlyTogBtn.Parent = flyCard
 corner(FlyTogBtn, 8)
 
-local UDRow = Instance.new("Frame")
-UDRow.Size = UDim2.new(1,-12,0,0)
-UDRow.Position = UDim2.new(0,6,0,86)
-UDRow.BackgroundTransparency = 1
-UDRow.ZIndex = 103
-UDRow.Parent = flyCard
-
--- Naik turun di bawah toggle
 local NaikBtn = Instance.new("TextButton")
-NaikBtn.Size = UDim2.new(0.5,-3,0,30)
-NaikBtn.Position = UDim2.new(0,6,1,-38)
+NaikBtn.Size = UDim2.new(0.5,-9,0,26)
+NaikBtn.Position = UDim2.new(0,6,1,-32)
 NaikBtn.BackgroundColor3 = Color3.fromRGB(30,120,50)
 NaikBtn.Text = "⬆️ Naik"
 NaikBtn.TextColor3 = WHITE
@@ -313,8 +288,8 @@ NaikBtn.Parent = flyCard
 corner(NaikBtn, 7)
 
 local TurunBtn = Instance.new("TextButton")
-TurunBtn.Size = UDim2.new(0.5,-3,0,30)
-TurunBtn.Position = UDim2.new(0.5,3,1,-38)
+TurunBtn.Size = UDim2.new(0.5,-9,0,26)
+TurunBtn.Position = UDim2.new(0.5,3,1,-32)
 TurunBtn.BackgroundColor3 = Color3.fromRGB(160,40,40)
 TurunBtn.Text = "⬇️ Turun"
 TurunBtn.TextColor3 = WHITE
@@ -331,8 +306,8 @@ local sbCard = mkCard(80)
 mkTitle(sbCard, "🏃 Speed Boost")
 local sbVal = 16
 local sbLbl = mkValLabel(sbCard, sbVal, 34)
-local sbDec = mkSmlBtn(sbCard, "-5",       UDim2.new(0,50,0,22), UDim2.new(0,6,0,48),     Color3.fromRGB(140,50,20))
-local sbInc = mkSmlBtn(sbCard, "+5",       UDim2.new(0,50,0,22), UDim2.new(1,-56,0,48),   Color3.fromRGB(30,90,160))
+local sbDec = mkSmlBtn(sbCard, "-5",          UDim2.new(0,50,0,22), UDim2.new(0,6,0,48),     Color3.fromRGB(140,50,20))
+local sbInc = mkSmlBtn(sbCard, "+5",          UDim2.new(0,50,0,22), UDim2.new(1,-56,0,48),   Color3.fromRGB(30,90,160))
 local sbSet = mkSmlBtn(sbCard, "✅ Set Speed", UDim2.new(0,110,0,22), UDim2.new(0.5,-55,0,48), BLUE)
 
 -- ================================
@@ -342,9 +317,9 @@ local jpCard = mkCard(80)
 mkTitle(jpCard, "🦘 Jump Power")
 local jpVal = 50
 local jpLbl = mkValLabel(jpCard, jpVal, 34)
-local jpDec = mkSmlBtn(jpCard, "-10",      UDim2.new(0,50,0,22), UDim2.new(0,6,0,48),     Color3.fromRGB(140,50,20))
-local jpInc = mkSmlBtn(jpCard, "+10",      UDim2.new(0,50,0,22), UDim2.new(1,-56,0,48),   Color3.fromRGB(30,90,160))
-local jpSet = mkSmlBtn(jpCard, "✅ Set Jump", UDim2.new(0,110,0,22), UDim2.new(0.5,-55,0,48), Color3.fromRGB(120,60,200))
+local jpDec = mkSmlBtn(jpCard, "-10",         UDim2.new(0,50,0,22), UDim2.new(0,6,0,48),     Color3.fromRGB(140,50,20))
+local jpInc = mkSmlBtn(jpCard, "+10",         UDim2.new(0,50,0,22), UDim2.new(1,-56,0,48),   Color3.fromRGB(30,90,160))
+local jpSet = mkSmlBtn(jpCard, "✅ Set Jump",  UDim2.new(0,110,0,22), UDim2.new(0.5,-55,0,48), Color3.fromRGB(120,60,200))
 
 -- ================================
 -- INVISIBLE
@@ -352,13 +327,6 @@ local jpSet = mkSmlBtn(jpCard, "✅ Set Jump", UDim2.new(0,110,0,22), UDim2.new(
 local invCard = mkCard(52)
 mkTitle(invCard, "👻 Invisible")
 local invBtn = mkToggleBtn(invCard, 12)
-
--- ================================
--- GOD MODE
--- ================================
-local godCard = mkCard(52)
-mkTitle(godCard, "🛡️ God Mode")
-local godBtn = mkToggleBtn(godCard, 12)
 
 -- ================================
 -- CHAT DI LAYAR
@@ -380,14 +348,9 @@ chatBox.ZIndex = 103
 chatBox.ClearTextOnFocus = false
 chatBox.Parent = chatCard
 corner(chatBox, 7)
-local cStroke = Instance.new("UIStroke")
-cStroke.Color = Color3.fromRGB(50,60,80)
-cStroke.Thickness = 1
-cStroke.Parent = chatBox
 
 local sendBtn = mkSmlBtn(chatCard, "📢 Send", UDim2.new(0,64,0,30), UDim2.new(1,-72,0,34), GREEN)
 
--- Chat display di layar
 local chatFrame = Instance.new("Frame")
 chatFrame.Size = UDim2.new(0,300,0,56)
 chatFrame.Position = UDim2.new(0.5,-150,0,70)
@@ -411,9 +374,23 @@ chatLbl.TextWrapped = true
 chatLbl.ZIndex = 9999
 chatLbl.Parent = chatFrame
 
--- Reset button
-local resetBtn = mkBigBtn(nil, "↺ Reset Semua Default", Color3.fromRGB(55,60,80))
-resetBtn.Parent = Scroll
+-- Reset
+local resetCard = Instance.new("Frame")
+resetCard.Size = UDim2.new(1,0,0,44)
+resetCard.BackgroundTransparency = 1
+resetCard.ZIndex = 101
+resetCard.Parent = Scroll
+
+local resetBtn = Instance.new("TextButton")
+resetBtn.Size = UDim2.new(1,0,1,0)
+resetBtn.BackgroundColor3 = Color3.fromRGB(55,60,80)
+resetBtn.Text = "↺ Reset Semua Default"
+resetBtn.TextColor3 = WHITE
+resetBtn.Font = Enum.Font.GothamBold
+resetBtn.TextSize = 14
+resetBtn.ZIndex = 103
+resetBtn.Parent = resetCard
+corner(resetBtn, 10)
 
 -- ================================
 -- LOGIKA TERBANG
@@ -497,8 +474,6 @@ TurunBtn.TouchEnded:Connect(function()   goDown = false end)
 -- LOGIKA ADMIN
 -- ================================
 local isInvis = false
-local isGod   = false
-local godConn
 
 local function applySpeed(v)
     local char = player.Character
@@ -525,18 +500,6 @@ local function applyInvis(state)
     end
 end
 
-local function applyGod(state)
-    if godConn then godConn:Disconnect(); godConn = nil end
-    if state then
-        godConn = rs.Heartbeat:Connect(function()
-            local char = player.Character
-            if not char then return end
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then hum.Health = hum.MaxHealth end
-        end)
-    end
-end
-
 sbDec.MouseButton1Click:Connect(function() sbVal = math.max(1,sbVal-5);   sbLbl.Text = tostring(sbVal) end)
 sbInc.MouseButton1Click:Connect(function() sbVal = math.min(500,sbVal+5); sbLbl.Text = tostring(sbVal) end)
 sbSet.MouseButton1Click:Connect(function() applySpeed(sbVal) end)
@@ -553,15 +516,6 @@ invBtn.MouseButton1Click:Connect(function()
     invBtn.Text = isInvis and "ON" or "OFF"
 end)
 
-godBtn.MouseButton1Click:Connect(function()
-    isGod = not isGod
-    applyGod(isGod)
-    godBtn.BackgroundColor3 = isGod and GREEN or Color3.fromRGB(50,50,70)
-    godBtn.TextColor3       = isGod and WHITE or GRAY
-    godBtn.Text = isGod and "ON" or "OFF"
-end)
-
--- Chat
 local chatTimer
 sendBtn.MouseButton1Click:Connect(function()
     local msg = chatBox.Text
@@ -576,14 +530,12 @@ sendBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Reset
 resetBtn.MouseButton1Click:Connect(function()
     sbVal = 16; sbLbl.Text = "16"; applySpeed(16)
     jpVal = 50; jpLbl.Text = "50"; applyJump(50)
     isInvis = false; applyInvis(false)
-    invBtn.BackgroundColor3 = Color3.fromRGB(50,50,70); invBtn.TextColor3 = GRAY; invBtn.Text = "OFF"
-    isGod = false; applyGod(false)
-    godBtn.BackgroundColor3 = Color3.fromRGB(50,50,70); godBtn.TextColor3 = GRAY; godBtn.Text = "OFF"
+    invBtn.BackgroundColor3 = Color3.fromRGB(50,50,70)
+    invBtn.TextColor3 = GRAY; invBtn.Text = "OFF"
     stopFly()
 end)
 
@@ -591,7 +543,6 @@ player.CharacterAdded:Connect(function()
     task.wait(0.5)
     applySpeed(sbVal); applyJump(jpVal)
     if isInvis then applyInvis(true) end
-    if isGod   then applyGod(true)  end
     flying = false; bv = nil; bg = nil
     FlyTogBtn.Text = "✈️ Aktifkan Terbang"
     FlyTogBtn.BackgroundColor3 = GREEN
@@ -599,12 +550,6 @@ player.CharacterAdded:Connect(function()
     FlyStatLbl.TextColor3 = RED
 end)
 
--- ================================
 -- OPEN / CLOSE
--- ================================
-openBtn.MouseButton1Click:Connect(function()
-    Frame.Visible = not Frame.Visible
-end)
-CloseBtn.MouseButton1Click:Connect(function()
-    Frame.Visible = false
-end)
+openBtn.MouseButton1Click:Connect(function() Frame.Visible = true end)
+CloseBtn.MouseButton1Click:Connect(function() Frame.Visible = false end)
