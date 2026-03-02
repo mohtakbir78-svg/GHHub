@@ -604,4 +604,355 @@ local function setInvis(state)
     if not c then return end
     for _, part in ipairs(c:GetDescendants()) do
         if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
-            part.LocalTransparencyModifier = state and 1 or
+            part.LocalTransparencyModifier = state and 1 or 0
+        end
+           if part:IsA("Decal") or part:IsA("SpecialMesh") then
+            -- tidak ubah
+        end
+    end
+    -- Cara kedua yang lebih reliable
+    for _, part in ipairs(c:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            part.Transparency = state and 1 or 0
+        end
+    end
+end
+
+invisBtn.MouseButton1Click:Connect(function()
+    isInvis = not isInvis
+    setInvis(isInvis)
+    if isInvis then
+        togOn(invisBtn, PU)
+        -- Loop untuk jaga transparansi
+        invisConn = RS.Heartbeat:Connect(function()
+            local c = P.Character
+            if not c then return end
+            for _, part in ipairs(c:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    if part.Transparency ~= 1 then part.Transparency = 1 end
+                end
+            end
+        end)
+    else
+        togOff(invisBtn)
+        if invisConn then invisConn:Disconnect(); invisConn=nil end
+        setInvis(false)
+    end
+    invisLbl.Text = "👻 Invisible: "..(isInvis and "✅ ON" or "❌ OFF")
+    invisLbl.TextColor3 = isInvis and G or R
+end)
+
+-- ================================
+-- LOGIKA GOD MODE
+-- ================================
+local isGod = false
+local godConn
+godBtn.MouseButton1Click:Connect(function()
+    isGod = not isGod
+    if isGod then
+        togOn(godBtn, GO)
+        godConn = RS.Heartbeat:Connect(function()
+            local c, hum = getChar()
+            if hum then hum.Health = hum.MaxHealth end
+        end)
+    else
+        togOff(godBtn)
+        if godConn then godConn:Disconnect(); godConn=nil end
+    end
+    godLbl.Text = "🛡️ God Mode: "..(isGod and "✅ ON" or "❌ OFF")
+    godLbl.TextColor3 = isGod and G or R
+end)
+
+-- ================================
+-- LOGIKA ESP (FIXED)
+-- ================================
+local espPly, espItem = false, false
+local espList = {}
+
+local function clearESP()
+    for _, v in ipairs(espList) do pcall(function() v:Destroy() end) end
+    espList = {}
+end
+
+local function addESP(adornee, col, label)
+    if not adornee or not adornee.Parent then return end
+    local box = Instance.new("BoxHandleAdornment")
+    box.Adornee = adornee
+    box.Size = adornee:IsA("BasePart") and adornee.Size or Vector3.new(4,6,4)
+    box.Color3 = col
+    box.AlwaysOnTop = true
+    box.Transparency = 0.6
+    box.ZIndex = 5
+    box.Parent = workspace
+    table.insert(espList, box)
+
+    local bg2 = Instance.new("BillboardGui")
+    bg2.Size = UDim2.new(0,100,0,24)
+    bg2.StudsOffset = Vector3.new(0,3,0)
+    bg2.AlwaysOnTop = true
+    bg2.Adornee = adornee
+    bg2.Parent = workspace
+    table.insert(espList, bg2)
+
+    local tl = Instance.new("TextLabel")
+    tl.Size = UDim2.new(1,0,1,0)
+    tl.BackgroundTransparency = 1
+    tl.Text = label
+    tl.TextColor3 = col
+    tl.Font = Enum.Font.GothamBold
+    tl.TextSize = 13
+    tl.TextStrokeTransparency = 0
+    tl.Parent = bg2
+end
+
+local function refreshESP()
+    clearESP()
+    if espPly then
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= P and plr.Character then
+                local root = plr.Character:FindFirstChild("HumanoidRootPart")
+                if root then addESP(root, R, "👤 "..plr.Name) end
+            end
+        end
+    end
+    if espItem then
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("BasePart") or obj:IsA("MeshPart") then
+                local n = obj.Name:lower()
+                if n:find("item") or n:find("pickup") or n:find("drop") or n:find("chest") or n:find("coin") or n:find("gem") or n:find("loot") then
+                    addESP(obj, GO, "📦 "..obj.Name)
+                end
+            end
+        end
+    end
+end
+
+espPlyBtn.MouseButton1Click:Connect(function()
+    espPly = not espPly
+    if espPly then togOn(espPlyBtn, B) else togOff(espPlyBtn) end
+    espPlyLbl.Text = "Player ESP: "..(espPly and "✅ ON" or "❌ OFF")
+    espPlyLbl.TextColor3 = espPly and G or R
+    refreshESP()
+end)
+
+espItemBtn.MouseButton1Click:Connect(function()
+    espItem = not espItem
+    if espItem then togOn(espItemBtn, GO) else togOff(espItemBtn) end
+    espItemLbl.Text = "Item ESP: "..(espItem and "✅ ON" or "❌ OFF")
+    espItemLbl.TextColor3 = espItem and G or R
+    refreshESP()
+end)
+
+task.spawn(function()
+    while true do
+        if espPly or espItem then refreshESP() end
+        task.wait(3)
+    end
+end)
+
+-- ================================
+-- LOGIKA BAN/KILL (NEW)
+-- ================================
+local targetPlayer = nil
+local targetIdx = 1
+
+local function getOtherPlayers()
+    local list = {}
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= P then table.insert(list, plr) end
+    end
+    return list
+end
+
+targetBtn.MouseButton1Click:Connect(function()
+    local others = getOtherPlayers()
+    if #others == 0 then targetBtn.Text = "Tidak ada player!" return end
+    targetIdx = (targetIdx % #others) + 1
+    targetPlayer = others[targetIdx]
+    targetBtn.Text = "🎯 "..targetPlayer.Name
+end)
+
+-- KILL: Teleport ke void / set health 0
+killBtn2.MouseButton1Click:Connect(function()
+    if not targetPlayer then killBtn2.Text = "Pilih target dulu!"; task.delay(2, function() killBtn2.Text = "💀 Kill Player" end); return end
+    -- Cara 1: Teleport ke bawah map
+    local c2 = targetPlayer.Character
+    if c2 then
+        local root = c2:FindFirstChild("HumanoidRootPart")
+        local hum2 = c2:FindFirstChildOfClass("Humanoid")
+        if root then
+            -- Tidak bisa langsung set HP lawan (server-side), tapi bisa teleport ke void
+            pcall(function() root.CFrame = CFrame.new(root.Position.X, -500, root.Position.Z) end)
+        end
+        -- Cara 2: Fire remote kill jika ada
+        for _, re in ipairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+            if re:IsA("RemoteEvent") then
+                local n = re.Name:lower()
+                if n:find("kill") or n:find("damage") or n:find("death") then
+                    pcall(function() re:FireServer(targetPlayer) end)
+                    pcall(function() re:FireServer(targetPlayer.Character) end)
+                end
+            end
+        end
+    end
+    killBtn2.Text = "✅ Done: "..targetPlayer.Name
+    task.delay(2, function() killBtn2.Text = "💀 Kill Player" end)
+end)
+
+-- KICK: Crash client target dengan remote spam
+kickBtn.MouseButton1Click:Connect(function()
+    if not targetPlayer then kickBtn.Text = "Pilih target dulu!"; task.delay(2, function() kickBtn.Text = "🚫 Kick (Crash)" end); return end
+    -- Spam remotes untuk crash (client-side exploit)
+    task.spawn(function()
+        for _ = 1, 20 do
+            for _, re in ipairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+                if re:IsA("RemoteEvent") then
+                    pcall(function() re:FireServer(targetPlayer, nil, nil, nil) end)
+                end
+            end
+            task.wait(0.05)
+        end
+    end)
+    kickBtn.Text = "✅ Sent to: "..targetPlayer.Name
+    task.delay(2, function() kickBtn.Text = "🚫 Kick (Crash)" end)
+end)
+
+-- RESPAWN TARGET
+respBtn.MouseButton1Click:Connect(function()
+    if not targetPlayer then return end
+    pcall(function() targetPlayer:LoadCharacter() end)
+    respBtn.Text = "✅ Respawned!"
+    task.delay(2, function() respBtn.Text = "🔄 Respawn Target" end)
+end)
+
+-- ================================
+-- LOGIKA TELEPORT
+-- ================================
+tpSpawnBtn.MouseButton1Click:Connect(function()
+    local c, hum, root = getChar()
+    if not root then return end
+    local sp = workspace:FindFirstChildWhichIsA("SpawnLocation")
+    if sp then root.CFrame = sp.CFrame + Vector3.new(0,5,0) end
+end)
+
+tpCamBtn.MouseButton1Click:Connect(function()
+    local c, hum, root = getChar()
+    if not root then return end
+    root.CFrame = workspace.CurrentCamera.CFrame * CFrame.new(0,0,-10)
+end)
+
+local tpIdx2 = 1
+tpPlyrBtn.MouseButton1Click:Connect(function()
+    local others = getOtherPlayers()
+    if #others == 0 then tpPlyrBtn.Text = "Tidak ada!"; return end
+    tpIdx2 = (tpIdx2 % #others) + 1
+    local tgt = others[tpIdx2]
+    tpPlyrBtn.Text = "→ "..tgt.Name
+    local c, hum, root = getChar()
+    if not root then return end
+    if tgt.Character then
+        local tr = tgt.Character:FindFirstChild("HumanoidRootPart")
+        if tr then root.CFrame = tr.CFrame + Vector3.new(0,3,0) end
+    end
+end)
+
+-- ================================
+-- LOGIKA CHAT (FIXED)
+-- ================================
+chatSendBtn.MouseButton1Click:Connect(function()
+    local msg = chatBox.Text
+    if msg == "" then
+        chatStatLbl.Text = "⚠️ Pesan kosong!"
+        task.delay(2, function() chatStatLbl.Text = "" end)
+        return
+    end
+    kirimChat(msg)
+    chatBox.Text = ""
+    chatStatLbl.Text = "✅ Tampil di layar!"
+    task.delay(3, function() chatStatLbl.Text = "" end)
+end)
+pr1.MouseButton1Click:Connect(function() kirimChat("⚠️ Jangan cheat!") end)
+pr2.MouseButton1Click:Connect(function() kirimChat("👋 Hai semua!") end)
+pr3.MouseButton1Click:Connect(function() kirimChat("🚫 Kalian di kick!") end)
+
+-- ================================
+-- LOGIKA NOCLIP
+-- ================================
+local noclip = false
+local noclipConn
+noclipBtn.MouseButton1Click:Connect(function()
+    noclip = not noclip
+    if noclip then
+        togOn(noclipBtn, OR)
+        noclipConn = RS.Stepped:Connect(function()
+            local c = P.Character
+            if not c then return end
+            for _, p2 in ipairs(c:GetDescendants()) do
+                if p2:IsA("BasePart") then p2.CanCollide = false end
+            end
+        end)
+    else
+        togOff(noclipBtn)
+        if noclipConn then noclipConn:Disconnect(); noclipConn=nil end
+        local c = P.Character
+        if c then
+            for _, p2 in ipairs(c:GetDescendants()) do
+                if p2:IsA("BasePart") then p2.CanCollide = true end
+            end
+        end
+    end
+    noclipLbl.Text = "Noclip: "..(noclip and "✅ ON" or "❌ OFF")
+    noclipLbl.TextColor3 = noclip and G or R
+end)
+
+-- ================================
+-- LOGIKA INF JUMP
+-- ================================
+local infJump = false
+local infJumpConn
+infJumpBtn.MouseButton1Click:Connect(function()
+    infJump = not infJump
+    if infJump then
+        togOn(infJumpBtn, CY)
+        infJumpConn = UIS.JumpRequest:Connect(function()
+            local c, hum = getChar()
+            if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+        end)
+    else
+        togOff(infJumpBtn)
+        if infJumpConn then infJumpConn:Disconnect(); infJumpConn=nil end
+    end
+    infJumpLbl.Text = "Inf Jump: "..(infJump and "✅ ON" or "❌ OFF")
+    infJumpLbl.TextColor3 = infJump and G or R
+end)
+
+resetBtn.MouseButton1Click:Connect(function() P:LoadCharacter() end)
+
+-- ================================
+-- RESPAWN HANDLER
+-- ================================
+P.CharacterAdded:Connect(function(char)
+    task.wait(0.8)
+    if speedActive then
+        local c, hum = getChar()
+        if hum then hum.WalkSpeed = spVal end
+    end
+    if jumpActive then
+        local c, hum = getChar()
+        if hum then hum.JumpPower = jpVal end
+    end
+    if isInvis then setInvis(true) end
+    if flying then
+        flying = false
+        task.wait(0.3)
+        startFly()
+    end
+end)
+
+-- OPEN / CLOSE
+XBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = false; XBtn.Visible = false; OpenBtn.Visible = true
+end)
+OpenBtn.MouseButton1Click:Connect(function()
+    Frame.Visible = true; XBtn.Visible = true; OpenBtn.Visible = false; updateX()
+end)
