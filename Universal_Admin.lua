@@ -115,7 +115,7 @@ HScroll.BackgroundTransparency = 1
 HScroll.ScrollBarThickness = 4
 HScroll.ScrollBarImageColor3 = PU
 HScroll.ScrollingDirection = Enum.ScrollingDirection.X
-HScroll.ZIndex = 101
+HScroll.ZIndex = 9000
 HScroll.Parent = Frame
 
 local HLayout = Instance.new("UIListLayout")
@@ -136,7 +136,7 @@ end)
 local function mkSec(order,w)
     local f=Instance.new("Frame")
     f.Size=UDim2.new(0,w or 175,1,-8)
-    f.BackgroundColor3=CA f.LayoutOrder=order f.ZIndex=102 f.Parent=HScroll
+    f.BackgroundColor3=CA f.LayoutOrder=order f.ZIndex=9500 f.Parent=HScroll
     cr(f,10) return f
 end
 local function mkTitle(p,txt,col)
@@ -158,14 +158,14 @@ local function mkBtn(p,txt,x,y,w,h,col)
     b.Size=UDim2.new(0,w,0,h) b.Position=UDim2.new(0,x,0,y)
     b.BackgroundColor3=col or Color3.fromRGB(30,30,50)
     b.Text=txt b.TextColor3=W b.Font=Enum.Font.GothamBold b.TextSize=11
-    b.ZIndex=103 b.Parent=p cr(b,7) return b
+    b.ZIndex=10000 b.Parent=p cr(b,7) return b
 end
 local function mkTog(p,x,y,w,h)
     local b=Instance.new("TextButton")
     b.Size=UDim2.new(0,w or 163,0,h or 30) b.Position=UDim2.new(0,x,0,y)
     b.BackgroundColor3=Color3.fromRGB(40,40,60)
     b.Text="OFF" b.TextColor3=GR b.Font=Enum.Font.GothamBold b.TextSize=13
-    b.ZIndex=103 b.Parent=p cr(b,7) return b
+    b.ZIndex=10000 b.Parent=p cr(b,7) return b
 end
 
 -- ================================
@@ -326,17 +326,22 @@ RS.RenderStepped:Connect(function()
     local dir=Vector3.zero
     if hum and hum.MoveDirection.Magnitude>0 then
         local md=hum.MoveDirection
+        -- FIX: pakai MoveDirection langsung dari kamera, bukan negatif
         local cR=Vector3.new(cam.CFrame.RightVector.X,0,cam.CFrame.RightVector.Z)
         local cF=Vector3.new(cam.CFrame.LookVector.X,0,cam.CFrame.LookVector.Z)
         if cR.Magnitude>0 then cR=cR.Unit end
         if cF.Magnitude>0 then cF=cF.Unit end
-        dir=cF*(-md.Z)+cR*md.X
+        -- FIX joystick terbalik: md.Z positif = maju, jadi cF*md.Z (bukan -md.Z)
+        dir=cF*md.Z+cR*md.X
         if dir.Magnitude>0 then dir=dir.Unit end
     end
-    if goUp   then dir=dir+Vector3.new(0,1,0) end
-    if goDown then dir=dir+Vector3.new(0,-1,0) end
-    if dir.Magnitude>0 then dir=dir.Unit end
-    bv.Velocity=dir*flySpeed
+    -- FIX turun: pisahkan vertikal dari horizontal agar tidak saling cancel
+    local vertDir=Vector3.zero
+    if goUp   then vertDir=Vector3.new(0,1,0) end
+    if goDown then vertDir=Vector3.new(0,-1,0) end
+    -- Gabungkan horizontal + vertikal
+    local finalVel=(dir*flySpeed)+(vertDir*flySpeed)
+    bv.Velocity=finalVel
     bg.CFrame=cam.CFrame
 end)
 
@@ -344,12 +349,12 @@ FlyBtn.MouseButton1Click:Connect(function() if flying then stopFly() else startF
 StopBtn.MouseButton1Click:Connect(function() stopFly() end)
 NaikBtn.MouseButton1Down:Connect(function() if not flying then startFly() end goUp=true end)
 NaikBtn.MouseButton1Up:Connect(function() goUp=false end)
-NaikBtn.TouchStarted:Connect(function(_,gp) if gp then if not flying then startFly() end goUp=true end end)
-NaikBtn.TouchEnded:Connect(function(_,gp) if gp then goUp=false end end)
+NaikBtn.TouchStarted:Connect(function() if not flying then startFly() end goUp=true end)
+NaikBtn.TouchEnded:Connect(function() goUp=false end)
 TurunBtn.MouseButton1Down:Connect(function() if not flying then startFly() end goDown=true end)
 TurunBtn.MouseButton1Up:Connect(function() goDown=false end)
-TurunBtn.TouchStarted:Connect(function(_,gp) if gp then if not flying then startFly() end goDown=true end end)
-TurunBtn.TouchEnded:Connect(function(_,gp) if gp then goDown=false end end)
+TurunBtn.TouchStarted:Connect(function() if not flying then startFly() end goDown=true end)
+TurunBtn.TouchEnded:Connect(function() goDown=false end)
 FlyDec.MouseButton1Click:Connect(function() flySpeed=math.max(10,flySpeed-10) fspLbl.Text=tostring(flySpeed) end)
 FlyInc.MouseButton1Click:Connect(function() flySpeed=math.min(500,flySpeed+10) fspLbl.Text=tostring(flySpeed) end)
 
