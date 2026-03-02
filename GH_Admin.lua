@@ -5,7 +5,6 @@
 local player = game.Players.LocalPlayer
 local rs = game:GetService("RunService")
 local uis = game:GetService("UserInputService")
-local lighting = game:GetService("Lighting")
 
 local sg = Instance.new("ScreenGui")
 sg.ResetOnSpawn = false
@@ -31,6 +30,76 @@ local function corner(p, r)
 end
 
 -- ================================
+-- CHAT ADMIN DI ATAS LAYAR
+-- ================================
+local chatDisp = Instance.new("Frame")
+chatDisp.Size = UDim2.new(0, 440, 0, 76)
+chatDisp.Position = UDim2.new(0.5, -220, 0, 10)
+chatDisp.BackgroundColor3 = Color3.fromRGB(8, 8, 18)
+chatDisp.BackgroundTransparency = 0
+chatDisp.BorderSizePixel = 0
+chatDisp.ZIndex = 99998
+chatDisp.Visible = false
+chatDisp.Parent = sg
+corner(chatDisp, 12)
+local cdStroke = Instance.new("UIStroke")
+cdStroke.Color = CYAN
+cdStroke.Thickness = 2.5
+cdStroke.Parent = chatDisp
+
+local cdBadge = Instance.new("Frame")
+cdBadge.Size = UDim2.new(0, 72, 0, 22)
+cdBadge.Position = UDim2.new(0, 10, 0, 7)
+cdBadge.BackgroundColor3 = CYAN
+cdBadge.BorderSizePixel = 0
+cdBadge.ZIndex = 99999
+cdBadge.Parent = chatDisp
+corner(cdBadge, 5)
+local cdBadgeLbl = Instance.new("TextLabel")
+cdBadgeLbl.Size = UDim2.new(1,0,1,0)
+cdBadgeLbl.BackgroundTransparency = 1
+cdBadgeLbl.Text = "⚡ ADMIN"
+cdBadgeLbl.TextColor3 = DARK
+cdBadgeLbl.Font = Enum.Font.GothamBold
+cdBadgeLbl.TextSize = 11
+cdBadgeLbl.ZIndex = 99999
+cdBadgeLbl.Parent = cdBadge
+
+local cdName = Instance.new("TextLabel")
+cdName.Size = UDim2.new(1,-100,0,22)
+cdName.Position = UDim2.new(0,88,0,7)
+cdName.BackgroundTransparency = 1
+cdName.Text = player.Name
+cdName.TextColor3 = CYAN
+cdName.Font = Enum.Font.GothamBold
+cdName.TextSize = 14
+cdName.TextXAlignment = Enum.TextXAlignment.Left
+cdName.ZIndex = 99999
+cdName.Parent = chatDisp
+
+local cdMsg = Instance.new("TextLabel")
+cdMsg.Size = UDim2.new(1,-16,0,40)
+cdMsg.Position = UDim2.new(0,10,0,32)
+cdMsg.BackgroundTransparency = 1
+cdMsg.Text = ""
+cdMsg.TextColor3 = WHITE
+cdMsg.Font = Enum.Font.GothamBold
+cdMsg.TextSize = 22
+cdMsg.TextWrapped = true
+cdMsg.TextXAlignment = Enum.TextXAlignment.Left
+cdMsg.ZIndex = 99999
+cdMsg.Parent = chatDisp
+
+local cdBar = Instance.new("Frame")
+cdBar.Size = UDim2.new(1, 0, 0, 3)
+cdBar.Position = UDim2.new(0, 0, 1, -3)
+cdBar.BackgroundColor3 = CYAN
+cdBar.BorderSizePixel = 0
+cdBar.ZIndex = 99999
+cdBar.Parent = chatDisp
+corner(cdBar, 2)
+
+-- ================================
 -- MAIN FRAME
 -- ================================
 local Frame = Instance.new("Frame")
@@ -48,7 +117,6 @@ fStroke.Color = Color3.fromRGB(40,40,80)
 fStroke.Thickness = 1.5
 fStroke.Parent = Frame
 
--- TITLE BAR
 local TBar = Instance.new("Frame")
 TBar.Size = UDim2.new(1,0,0,40)
 TBar.BackgroundColor3 = Color3.fromRGB(16,16,36)
@@ -77,7 +145,7 @@ TLbl.TextXAlignment = Enum.TextXAlignment.Left
 TLbl.ZIndex = 102
 TLbl.Parent = TBar
 
--- CLOSE BTN
+-- CLOSE BTN (parent sg)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0,34,0,34)
 CloseBtn.BackgroundColor3 = RED
@@ -147,7 +215,6 @@ HLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     HScroll.CanvasSize = UDim2.new(0, HLayout.AbsoluteContentSize.X+10, 0, 0)
 end)
 
--- Helpers
 local function mkSec(order, w)
     local f = Instance.new("Frame")
     f.Size = UDim2.new(0, w or 160, 1, -10)
@@ -252,44 +319,37 @@ local flyS = mkSec(1, 168)
 secTitle(flyS, "✈️ Terbang", CYAN)
 local flyStatLbl = secLbl(flyS, "❌ OFF", 30, RED)
 local flySpeedLbl = secLbl(flyS, "Speed: 60", 48, GOLD)
-
-local NaikBtn   = secBtn(flyS, "⬆️", 6,  68, 44, 36, Color3.fromRGB(30,120,50))
-local FlyTogBtn = secBtn(flyS, "FLY", 56, 68, 58, 36, GREEN)
+local NaikBtn   = secBtn(flyS, "⬆️", 6,   68, 44, 36, Color3.fromRGB(30,120,50))
+local FlyTogBtn = secBtn(flyS, "FLY", 56,  68, 58, 36, GREEN)
 local TurunBtn  = secBtn(flyS, "⬇️", 120, 68, 44, 36, Color3.fromRGB(160,40,40))
-
 local FlyDecBtn = secBtn(flyS, "-10", 6,  110, 50, 24, Color3.fromRGB(140,50,20))
-local FlyIncBtn = secBtn(flyS, "+10", 114, 110, 50, 24, Color3.fromRGB(30,90,160))
+local FlyIncBtn = secBtn(flyS, "+10", 114,110, 50, 24, Color3.fromRGB(30,90,160))
 
 -- ================================
 -- SECTION 2: SPEED & JUMP
 -- ================================
 local spjS = mkSec(2, 168)
 secTitle(spjS, "🏃 Speed & Jump", WHITE)
-
+secLbl(spjS, "Speed", 34, GRAY)
 local spVal = 16
 local spLbl = secValLbl(spjS, spVal, 60, 34)
 local spDec = secBtn(spjS, "-5",  6,   38, 50, 22, Color3.fromRGB(140,50,20))
 local spInc = secBtn(spjS, "+5",  114, 38, 50, 22, Color3.fromRGB(30,90,160))
 local spSet = secBtn(spjS, "✅ Set Speed", 6, 66, 156, 26, BLUE)
-
+secLbl(spjS, "Jump", 102, GRAY)
 local jpVal = 50
 local jpLbl = secValLbl(spjS, jpVal, 60, 102)
 local jpDec = secBtn(spjS, "-10", 6,   106, 50, 22, Color3.fromRGB(140,50,20))
 local jpInc = secBtn(spjS, "+10", 114, 106, 50, 22, Color3.fromRGB(30,90,160))
-local jpSet = secBtn(spjS, "✅ Set Jump",  6, 134, 156, 26, PURP)
-
-secLbl(spjS, "Speed", 34, GRAY)
-secLbl(spjS, "Jump",  102, GRAY)
+local jpSet = secBtn(spjS, "✅ Set Jump", 6, 134, 156, 26, PURP)
 
 -- ================================
 -- SECTION 3: INVISIBLE & GOD
 -- ================================
 local igS = mkSec(3, 168)
 secTitle(igS, "👻 Invis & 🛡️ God", WHITE)
-
 local invisStatLbl = secLbl(igS, "👻 Invisible: ❌ OFF", 30, RED)
 local invisBtn = secTog(igS, 8, 50, 152)
-
 local godStatLbl = secLbl(igS, "🛡️ God Mode: ❌ OFF", 90, RED)
 local godBtn = secTog(igS, 8, 110, 152)
 
@@ -298,10 +358,8 @@ local godBtn = secTog(igS, 8, 110, 152)
 -- ================================
 local espS = mkSec(4, 168)
 secTitle(espS, "👁️ ESP", BLUE)
-
 local espPlyStatLbl = secLbl(espS, "Player ESP: ❌ OFF", 30, RED)
 local espPlyBtn = secTog(espS, 8, 50, 152, 28)
-
 local espItemStatLbl = secLbl(espS, "Item ESP: ❌ OFF", 90, RED)
 local espItemBtn = secTog(espS, 8, 110, 152, 28)
 
@@ -310,144 +368,51 @@ local espItemBtn = secTog(espS, 8, 110, 152, 28)
 -- ================================
 local tpS = mkSec(5, 168)
 secTitle(tpS, "🌀 Teleport", GOLD)
-
-local tpStatLbl = secLbl(tpS, "Tap player untuk TP", 30, GRAY)
-local tpBtn = secBtn(tpS, "🌀 TP ke Spawn", 6, 50, 156, 28, GOLD)
-local tpCamBtn = secBtn(tpS, "📍 TP ke Camera", 6, 84, 156, 28, ORANGE)
-
--- Teleport ke semua player list
-local tpPlyrLbl = secLbl(tpS, "TP ke Player:", 118, GRAY)
-local tpPlyrBtn = secBtn(tpS, "Pilih Player ▼", 6, 134, 156, 28, Color3.fromRGB(60,60,90))
+secLbl(tpS, "Tap player untuk TP", 30, GRAY)
+local tpBtn    = secBtn(tpS, "🌀 TP ke Spawn",   6, 50,  156, 28, GOLD)
+local tpCamBtn = secBtn(tpS, "📍 TP ke Camera",  6, 84,  156, 28, ORANGE)
+secLbl(tpS, "TP ke Player:", 118, GRAY)
+local tpPlyrBtn = secBtn(tpS, "Pilih Player ▼",  6, 134, 156, 28, Color3.fromRGB(60,60,90))
 
 -- ================================
--- SECTION 6: CHAT & EFEK
+-- SECTION 6: CHAT ADMIN
 -- ================================
 local chatS = mkSec(6, 168)
-chatS.Size = UDim2.new(0, 168, 1, -10)  -- diperlebar vertikal sudah dari scroll
-secTitle(chatS, "💬 Chat Layar", WHITE)
+secTitle(chatS, "💬 Chat Admin", CYAN)
 
 local chatBox = Instance.new("TextBox")
-chatBox.Size = UDim2.new(1,-12,0,36)
-chatBox.Position = UDim2.new(0,6,0,32)
+chatBox.Size = UDim2.new(1,-12,0,34)
+chatBox.Position = UDim2.new(0,6,0,30)
 chatBox.BackgroundColor3 = Color3.fromRGB(16,16,26)
 chatBox.Text = ""
 chatBox.PlaceholderText = "Tulis pesan..."
 chatBox.PlaceholderColor3 = GRAY
 chatBox.TextColor3 = WHITE
 chatBox.Font = Enum.Font.Gotham
-chatBox.TextSize = 12
+chatBox.TextSize = 11
 chatBox.ZIndex = 103
 chatBox.ClearTextOnFocus = false
 chatBox.TextWrapped = true
 chatBox.Parent = chatS
 corner(chatBox, 7)
+Instance.new("UIStroke", chatBox).Color = Color3.fromRGB(50,60,80)
 
--- Preset chat admin cepat
-local presetLbl = Instance.new("TextLabel")
-presetLbl.Size = UDim2.new(1,-10,0,14)
-presetLbl.Position = UDim2.new(0,6,0,74)
-presetLbl.BackgroundTransparency = 1
-presetLbl.Text = "⚡ Pesan Cepat:"
-presetLbl.TextColor3 = GRAY
-presetLbl.Font = Enum.Font.GothamBold
-presetLbl.TextSize = 10
-presetLbl.TextXAlignment = Enum.TextXAlignment.Left
-presetLbl.ZIndex = 103
-presetLbl.Parent = chatS
-
-local preset1 = secBtn(chatS, "⚠️ Jangan cheat!", 6, 90, 156, 22, Color3.fromRGB(180,80,20))
-local preset2 = secBtn(chatS, "👋 Hai semua!", 6, 118, 156, 22, Color3.fromRGB(30,80,160))
-local preset3 = secBtn(chatS, "🚫 Kalian di kick!", 6, 146, 156, 22, RED)
-
-local chatSendBtn = secBtn(chatS, "📢 Kirim Chat", 6, 172, 156, 30, GREEN)
-local chatStatLbl = secLbl(chatS, "", 208, GREEN)
+secLbl(chatS, "⚡ Pesan Cepat:", 70, GRAY)
+local preset1 = secBtn(chatS, "⚠️ Jangan cheat!",  6, 86,  156, 22, Color3.fromRGB(180,80,20))
+local preset2 = secBtn(chatS, "👋 Hai semua!",      6, 114, 156, 22, Color3.fromRGB(30,80,160))
+local preset3 = secBtn(chatS, "🚫 Kalian di kick!", 6, 142, 156, 22, RED)
+local chatSendBtn = secBtn(chatS, "📢 Kirim Chat", 6, 170, 156, 30, GREEN)
+local chatStatLbl = secLbl(chatS, "", 206, GREEN)
 
 -- ================================
--- CHAT ADMIN DI ATAS LAYAR
--- ================================
-local chatDisp = Instance.new("Frame")
-chatDisp.Size = UDim2.new(0, 440, 0, 76)
-chatDisp.Position = UDim2.new(0.5, -220, 0, 10)  -- ATAS LAYAR
-chatDisp.BackgroundColor3 = Color3.fromRGB(8, 8, 18)
-chatDisp.BackgroundTransparency = 0
-chatDisp.BorderSizePixel = 0
-chatDisp.ZIndex = 99998
-chatDisp.Visible = false
-chatDisp.Parent = sg
-corner(chatDisp, 12)
-local cdStroke = Instance.new("UIStroke")
-cdStroke.Color = CYAN
-cdStroke.Thickness = 2.5
-cdStroke.Parent = chatDisp
-
--- Badge [ADMIN]
-local cdBadge = Instance.new("Frame")
-cdBadge.Size = UDim2.new(0, 72, 0, 22)
-cdBadge.Position = UDim2.new(0, 10, 0, 7)
-cdBadge.BackgroundColor3 = CYAN
-cdBadge.BorderSizePixel = 0
-cdBadge.ZIndex = 99999
-cdBadge.Parent = chatDisp
-corner(cdBadge, 5)
-local cdBadgeLbl = Instance.new("TextLabel")
-cdBadgeLbl.Size = UDim2.new(1,0,1,0)
-cdBadgeLbl.BackgroundTransparency = 1
-cdBadgeLbl.Text = "⚡ ADMIN"
-cdBadgeLbl.TextColor3 = DARK
-cdBadgeLbl.Font = Enum.Font.GothamBold
-cdBadgeLbl.TextSize = 11
-cdBadgeLbl.ZIndex = 99999
-cdBadgeLbl.Parent = cdBadge
-
--- Nama player
-local cdName = Instance.new("TextLabel")
-cdName.Size = UDim2.new(1,-100,0,22)
-cdName.Position = UDim2.new(0,88,0,7)
-cdName.BackgroundTransparency = 1
-cdName.Text = player.Name
-cdName.TextColor3 = CYAN
-cdName.Font = Enum.Font.GothamBold
-cdName.TextSize = 14
-cdName.TextXAlignment = Enum.TextXAlignment.Left
-cdName.ZIndex = 99999
-cdName.Parent = chatDisp
-
--- Pesan
-local cdMsg = Instance.new("TextLabel")
-cdMsg.Size = UDim2.new(1,-16,0,40)
-cdMsg.Position = UDim2.new(0,10,0,32)
-cdMsg.BackgroundTransparency = 1
-cdMsg.Text = ""
-cdMsg.TextColor3 = WHITE
-cdMsg.Font = Enum.Font.GothamBold
-cdMsg.TextSize = 22
-cdMsg.TextWrapped = true
-cdMsg.TextXAlignment = Enum.TextXAlignment.Left
-cdMsg.ZIndex = 99999
-cdMsg.Parent = chatDisp
-
--- Garis bawah animasi
-local cdBar = Instance.new("Frame")
-cdBar.Size = UDim2.new(1, 0, 0, 3)
-cdBar.Position = UDim2.new(0, 0, 1, -3)
-cdBar.BackgroundColor3 = CYAN
-cdBar.BorderSizePixel = 0
-cdBar.ZIndex = 99999
-cdBar.Parent = chatDisp
-corner(cdBar, 2)
-
--- ================================
--- SECTION 7: EFEK & LAINNYA
+-- SECTION 7: EFEK & RESET
 -- ================================
 local fxS = mkSec(7, 168)
 secTitle(fxS, "🎨 Efek & Reset", WHITE)
-
 local fxNoclipStatLbl = secLbl(fxS, "Noclip: ❌ OFF", 30, RED)
 local fxNoclipBtn = secTog(fxS, 8, 50, 152, 28)
-
 local fxInfJumpStatLbl = secLbl(fxS, "Inf Jump: ❌ OFF", 86, RED)
 local fxInfJumpBtn = secTog(fxS, 8, 106, 152, 28)
-
 local fxResetBtn = secBtn(fxS, "↺ Reset Karakter", 6, 142, 156, 28, Color3.fromRGB(55,60,80))
 
 -- ================================
@@ -510,10 +475,8 @@ local function startFly()
     bg.MaxTorque = Vector3.new(1e5,1e5,1e5)
     bg.D = 50
     bg.Parent = root
-    FlyTogBtn.BackgroundColor3 = RED
-    FlyTogBtn.Text = "🛑"
-    flyStatLbl.Text = "✅ ON"
-    flyStatLbl.TextColor3 = GREEN
+    FlyTogBtn.BackgroundColor3 = RED; FlyTogBtn.Text = "🛑"
+    flyStatLbl.Text = "✅ ON"; flyStatLbl.TextColor3 = GREEN
 end
 
 local function stopFly()
@@ -524,10 +487,8 @@ local function stopFly()
     if hum then hum.PlatformStand = false end
     if bv then bv:Destroy(); bv = nil end
     if bg then bg:Destroy(); bg = nil end
-    FlyTogBtn.BackgroundColor3 = GREEN
-    FlyTogBtn.Text = "FLY"
-    flyStatLbl.Text = "❌ OFF"
-    flyStatLbl.TextColor3 = RED
+    FlyTogBtn.BackgroundColor3 = GREEN; FlyTogBtn.Text = "FLY"
+    flyStatLbl.Text = "❌ OFF"; flyStatLbl.TextColor3 = RED
 end
 
 rs.RenderStepped:Connect(function()
@@ -549,38 +510,34 @@ rs.RenderStepped:Connect(function()
 end)
 
 FlyTogBtn.MouseButton1Click:Connect(function() if flying then stopFly() else startFly() end end)
-FlyDecBtn.MouseButton1Click:Connect(function() flySpeed = math.max(10,flySpeed-10); flySpeedLbl.Text = "Speed: "..flySpeed end)
-FlyIncBtn.MouseButton1Click:Connect(function() flySpeed = math.min(500,flySpeed+10); flySpeedLbl.Text = "Speed: "..flySpeed end)
-NaikBtn.MouseButton1Down:Connect(function() goUp = true end)
-NaikBtn.MouseButton1Up:Connect(function() goUp = false end)
-NaikBtn.TouchStarted:Connect(function() goUp = true end)
-NaikBtn.TouchEnded:Connect(function() goUp = false end)
-TurunBtn.MouseButton1Down:Connect(function() goDown = true end)
-TurunBtn.MouseButton1Up:Connect(function() goDown = false end)
-TurunBtn.TouchStarted:Connect(function() goDown = true end)
-TurunBtn.TouchEnded:Connect(function() goDown = false end)
+FlyDecBtn.MouseButton1Click:Connect(function() flySpeed = math.max(10,flySpeed-10); flySpeedLbl.Text="Speed: "..flySpeed end)
+FlyIncBtn.MouseButton1Click:Connect(function() flySpeed = math.min(500,flySpeed+10); flySpeedLbl.Text="Speed: "..flySpeed end)
+NaikBtn.MouseButton1Down:Connect(function() goUp=true end)
+NaikBtn.MouseButton1Up:Connect(function() goUp=false end)
+NaikBtn.TouchStarted:Connect(function() goUp=true end)
+NaikBtn.TouchEnded:Connect(function() goUp=false end)
+TurunBtn.MouseButton1Down:Connect(function() goDown=true end)
+TurunBtn.MouseButton1Up:Connect(function() goDown=false end)
+TurunBtn.TouchStarted:Connect(function() goDown=true end)
+TurunBtn.TouchEnded:Connect(function() goDown=false end)
 
 -- ================================
 -- LOGIKA SPEED & JUMP
 -- ================================
 local function applySpeed(v)
-    local c = player.Character
-    if not c then return end
-    local hum = c:FindFirstChildOfClass("Humanoid")
-    if hum then hum.WalkSpeed = v end
+    local c = player.Character; if not c then return end
+    local hum = c:FindFirstChildOfClass("Humanoid"); if hum then hum.WalkSpeed = v end
 end
 local function applyJump(v)
-    local c = player.Character
-    if not c then return end
-    local hum = c:FindFirstChildOfClass("Humanoid")
-    if hum then hum.JumpPower = v end
+    local c = player.Character; if not c then return end
+    local hum = c:FindFirstChildOfClass("Humanoid"); if hum then hum.JumpPower = v end
 end
 
-spDec.MouseButton1Click:Connect(function() spVal = math.max(1,spVal-5); spLbl.Text = tostring(spVal) end)
-spInc.MouseButton1Click:Connect(function() spVal = math.min(999,spVal+5); spLbl.Text = tostring(spVal) end)
+spDec.MouseButton1Click:Connect(function() spVal=math.max(1,spVal-5); spLbl.Text=tostring(spVal) end)
+spInc.MouseButton1Click:Connect(function() spVal=math.min(999,spVal+5); spLbl.Text=tostring(spVal) end)
 spSet.MouseButton1Click:Connect(function() applySpeed(spVal) end)
-jpDec.MouseButton1Click:Connect(function() jpVal = math.max(1,jpVal-10); jpLbl.Text = tostring(jpVal) end)
-jpInc.MouseButton1Click:Connect(function() jpVal = math.min(999,jpVal+10); jpLbl.Text = tostring(jpVal) end)
+jpDec.MouseButton1Click:Connect(function() jpVal=math.max(1,jpVal-10); jpLbl.Text=tostring(jpVal) end)
+jpInc.MouseButton1Click:Connect(function() jpVal=math.min(999,jpVal+10); jpLbl.Text=tostring(jpVal) end)
 jpSet.MouseButton1Click:Connect(function() applyJump(jpVal) end)
 
 -- ================================
@@ -588,12 +545,9 @@ jpSet.MouseButton1Click:Connect(function() applyJump(jpVal) end)
 -- ================================
 local isInvis = false
 local function applyInvis(state)
-    local c = player.Character
-    if not c then return end
+    local c = player.Character; if not c then return end
     for _, p in ipairs(c:GetDescendants()) do
-        if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then
-            p.Transparency = state and 1 or 0
-        end
+        if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then p.Transparency = state and 1 or 0 end
         if p:IsA("Decal") then p.Transparency = state and 1 or 0 end
     end
 end
@@ -602,7 +556,7 @@ invisBtn.MouseButton1Click:Connect(function()
     isInvis = not isInvis
     applyInvis(isInvis)
     if isInvis then togOn(invisBtn, PURP) else togOff(invisBtn) end
-    invisStatLbl.Text = "👻 Invisible: " .. (isInvis and "✅ ON" or "❌ OFF")
+    invisStatLbl.Text = "👻 Invisible: "..(isInvis and "✅ ON" or "❌ OFF")
     invisStatLbl.TextColor3 = isInvis and GREEN or RED
 end)
 
@@ -611,4 +565,24 @@ end)
 -- ================================
 local isGod = false
 local godConn
-go
+godBtn.MouseButton1Click:Connect(function()
+    isGod = not isGod
+    if isGod then
+        togOn(godBtn, GOLD)
+        godConn = rs.Heartbeat:Connect(function()
+            local c = player.Character; if not c then return end
+            local hum = c:FindFirstChildOfClass("Humanoid")
+            if hum then hum.Health = hum.MaxHealth end
+        end)
+    else
+        togOff(godBtn)
+        if godConn then godConn:Disconnect(); godConn = nil end
+    end
+    godStatLbl.Text = "🛡️ God Mode: "..(isGod and "✅ ON" or "❌ OFF")
+    godStatLbl.TextColor3 = isGod and GREEN or RED
+end)
+
+-- ================================
+-- LOGIKA ESP
+-- ================================
+local esp
