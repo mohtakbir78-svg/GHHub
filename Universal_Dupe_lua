@@ -1,5 +1,5 @@
--- Garden Horizons Item Dupe Script
--- Scan RemoteEvents + coba dupe item
+-- Garden Horizons Money Script v1
+-- Auto Farm + Auto Sell + Remote Sell Spam
 -- Delta Compatible
 
 local Players = game:GetService("Players")
@@ -8,14 +8,13 @@ local UIS = game:GetService("UserInputService")
 local P = Players.LocalPlayer
 local RSt = game:GetService("ReplicatedStorage")
 
--- Hapus GUI lama
 pcall(function()
-    local old = (gethui and gethui() or P.PlayerGui):FindFirstChild("GH_Dupe")
+    local old = (gethui and gethui() or P.PlayerGui):FindFirstChild("GH_Money")
     if old then old:Destroy() end
 end)
 
 local sg = Instance.new("ScreenGui")
-sg.Name = "GH_Dupe"
+sg.Name = "GH_Money"
 sg.ResetOnSpawn = false
 sg.DisplayOrder = 999
 sg.IgnoreGuiInset = true
@@ -30,29 +29,23 @@ local GR=Color3.fromRGB(100,100,120)
 local GO=Color3.fromRGB(240,190,50)
 local CY=Color3.fromRGB(0,210,230)
 local LIME=Color3.fromRGB(100,220,60)
+local PU=Color3.fromRGB(160,80,240)
 
-local function rnd(p,r)
-    Instance.new("UICorner",p).CornerRadius=UDim.new(0,r or 8)
-end
-local function stk(p,c,t)
-    local s=Instance.new("UIStroke",p) s.Color=c or LIME s.Thickness=t or 1.5
-end
+local function rnd(p,r) Instance.new("UICorner",p).CornerRadius=UDim.new(0,r or 8) end
+local function stk(p,c,t) local s=Instance.new("UIStroke",p) s.Color=c or LIME s.Thickness=t or 1.5 end
+
 local function mkBtn(par,txt,x,y,w,h,col)
     local b=Instance.new("TextButton")
-    b.Position=UDim2.new(0,x,0,y)
-    b.Size=UDim2.new(0,w,0,h)
+    b.Position=UDim2.new(0,x,0,y) b.Size=UDim2.new(0,w,0,h)
     b.BackgroundColor3=col or Color3.fromRGB(40,40,70)
-    b.Text=txt b.TextColor3=W
-    b.Font=Enum.Font.GothamBold b.TextSize=11
-    b.BorderSizePixel=0 b.ZIndex=999
-    b.Parent=par rnd(b,7) return b
+    b.Text=txt b.TextColor3=W b.Font=Enum.Font.GothamBold b.TextSize=12
+    b.BorderSizePixel=0 b.ZIndex=999 b.Parent=par rnd(b,7) return b
 end
+
 local function mkLbl(par,txt,x,y,w,h,sz,col)
     local l=Instance.new("TextLabel")
-    l.Position=UDim2.new(0,x,0,y)
-    l.Size=UDim2.new(0,w,0,h)
-    l.BackgroundTransparency=1
-    l.Text=txt l.TextColor3=col or GR
+    l.Position=UDim2.new(0,x,0,y) l.Size=UDim2.new(0,w,0,h)
+    l.BackgroundTransparency=1 l.Text=txt l.TextColor3=col or GR
     l.Font=Enum.Font.GothamBold l.TextSize=sz or 11
     l.TextXAlignment=Enum.TextXAlignment.Left
     l.ZIndex=999 l.Parent=par return l
@@ -62,42 +55,30 @@ end
 -- MAIN PANEL
 -- ================================
 local Panel=Instance.new("Frame")
-Panel.Size=UDim2.new(0,360,0,500)
-Panel.Position=UDim2.new(0.5,-180,0.5,-250)
+Panel.Size=UDim2.new(0,340,0,460)
+Panel.Position=UDim2.new(0.5,-170,0.5,-230)
 Panel.BackgroundColor3=D
-Panel.BorderSizePixel=0
-Panel.ZIndex=50
-Panel.Parent=sg
-rnd(Panel,14)
-stk(Panel,LIME,2)
+Panel.BorderSizePixel=0 Panel.ZIndex=50 Panel.Parent=sg
+rnd(Panel,14) stk(Panel,LIME,2)
 
--- Title
 local TBar=Instance.new("Frame",Panel)
 TBar.Size=UDim2.new(1,0,0,42)
 TBar.BackgroundColor3=Color3.fromRGB(10,24,10)
-TBar.BorderSizePixel=0 TBar.ZIndex=51
-rnd(TBar,14)
-Instance.new("Frame",TBar).Size=UDim2.new(1,0,0,14)
-local TFix=TBar:FindFirstChildWhichIsA("Frame")
-TFix.Position=UDim2.new(0,0,1,-14)
-TFix.BackgroundColor3=Color3.fromRGB(10,24,10)
-TFix.BorderSizePixel=0 TFix.ZIndex=51
-
+TBar.BorderSizePixel=0 TBar.ZIndex=51 rnd(TBar,14)
+local TFix=Instance.new("Frame",TBar)
+TFix.Size=UDim2.new(1,0,0,14) TFix.Position=UDim2.new(0,0,1,-14)
+TFix.BackgroundColor3=Color3.fromRGB(10,24,10) TFix.BorderSizePixel=0 TFix.ZIndex=51
 local TLbl=Instance.new("TextLabel",TBar)
-TLbl.Size=UDim2.new(1,-50,1,0)
-TLbl.Position=UDim2.new(0,12,0,0)
-TLbl.BackgroundTransparency=1
-TLbl.Text="🌱 GH Item Dupe Tool  •  ☰ drag"
-TLbl.TextColor3=LIME TLbl.Font=Enum.Font.GothamBold
-TLbl.TextSize=13 TLbl.TextXAlignment=Enum.TextXAlignment.Left
-TLbl.ZIndex=52
+TLbl.Size=UDim2.new(1,-50,1,0) TLbl.Position=UDim2.new(0,12,0,0)
+TLbl.BackgroundTransparency=1 TLbl.Text="💰 GH Money Script  •  ☰ drag"
+TLbl.TextColor3=LIME TLbl.Font=Enum.Font.GothamBold TLbl.TextSize=13
+TLbl.TextXAlignment=Enum.TextXAlignment.Left TLbl.ZIndex=52
 
 -- Drag
 local drg,drs,drp=false,nil,nil
 TBar.InputBegan:Connect(function(i)
     if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
-        drg=true drs=i.Position drp=Panel.Position
-    end
+        drg=true drs=i.Position drp=Panel.Position end
 end)
 TBar.InputEnded:Connect(function(i)
     if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drg=false end
@@ -106,32 +87,26 @@ UIS.InputChanged:Connect(function(i)
     if drg and(i.UserInputType==Enum.UserInputType.MouseMove or i.UserInputType==Enum.UserInputType.Touch) then
         local d=i.Position-drs
         Panel.Position=UDim2.new(drp.X.Scale,drp.X.Offset+d.X,drp.Y.Scale,drp.Y.Offset+d.Y)
+        fixClose()
     end
 end)
 
--- Close btn
 local CloseBtn=Instance.new("TextButton",sg)
-CloseBtn.Size=UDim2.new(0,34,0,34)
-CloseBtn.BackgroundColor3=R
-CloseBtn.Text="✕" CloseBtn.TextColor3=W
-CloseBtn.Font=Enum.Font.GothamBold CloseBtn.TextSize=16
-CloseBtn.BorderSizePixel=0 CloseBtn.ZIndex=9999
-rnd(CloseBtn,8)
+CloseBtn.Size=UDim2.new(0,34,0,34) CloseBtn.BackgroundColor3=R
+CloseBtn.Text="✕" CloseBtn.TextColor3=W CloseBtn.Font=Enum.Font.GothamBold
+CloseBtn.TextSize=16 CloseBtn.BorderSizePixel=0 CloseBtn.ZIndex=9999 rnd(CloseBtn,8)
 
-local function fixClose()
+function fixClose()
     local ap=Panel.AbsolutePosition local as=Panel.AbsoluteSize
     CloseBtn.Position=UDim2.new(0,ap.X+as.X-38,0,ap.Y+4)
 end
 Panel:GetPropertyChangedSignal("AbsolutePosition"):Connect(fixClose)
 task.defer(fixClose)
 
--- Open btn
 local OpenBtn=Instance.new("TextButton",sg)
-OpenBtn.Size=UDim2.new(0,50,0,50)
-OpenBtn.Position=UDim2.new(0,14,0.45,0)
-OpenBtn.BackgroundColor3=D OpenBtn.Text="🌱"
-OpenBtn.TextScaled=true OpenBtn.BorderSizePixel=0
-OpenBtn.ZIndex=9999 OpenBtn.Visible=false
+OpenBtn.Size=UDim2.new(0,50,0,50) OpenBtn.Position=UDim2.new(0,14,0.45,0)
+OpenBtn.BackgroundColor3=D OpenBtn.Text="💰" OpenBtn.TextScaled=true
+OpenBtn.BorderSizePixel=0 OpenBtn.ZIndex=9999 OpenBtn.Visible=false
 rnd(OpenBtn,25) stk(OpenBtn,LIME,2)
 
 CloseBtn.MouseButton1Click:Connect(function()
@@ -142,333 +117,531 @@ OpenBtn.MouseButton1Click:Connect(function()
 end)
 
 -- ================================
--- KONTEN PANEL
+-- KONTEN
 -- ================================
-local y = 50 -- posisi Y awal konten
+local y=50
 
--- Step 1: Scan Remote
-mkLbl(Panel,"━━━ STEP 1: SCAN REMOTE ━━━",10,y,340,18,11,LIME) y=y+20
+-- STATUS BOX
+local statusBox=Instance.new("Frame",Panel)
+statusBox.Position=UDim2.new(0,10,0,y) statusBox.Size=UDim2.new(0,320,0,60)
+statusBox.BackgroundColor3=Color3.fromRGB(6,6,14) statusBox.BorderSizePixel=0
+statusBox.ZIndex=51 rnd(statusBox,8) stk(statusBox,LIME,1)
 
-local scanStatusLbl = mkLbl(Panel,"Status: Belum scan",10,y,340,16,10,GR) y=y+18
-local remoteCountLbl= mkLbl(Panel,"Remote ditemukan: 0",10,y,340,16,10,CY) y=y+20
+local moneyLbl=mkLbl(statusBox,"💰 Money: Scanning...",8,4,304,20,12,GO)
+local statusLbl=mkLbl(statusBox,"Status: Siap",8,24,304,16,10,GR)
+local loopLbl  =mkLbl(statusBox,"Loop: 0x  |  Sell: 0x  |  Farm: 0x",8,42,304,16,9,CY)
+y=y+68
 
-local scanBtn = mkBtn(Panel,"🔍 Scan Semua Remote",10,y,340,32,Color3.fromRGB(30,70,160)) y=y+38
+-- TOMBOL UTAMA (ALL IN ONE)
+local allInOneBtn=mkBtn(Panel,"🚀 START ALL IN ONE",10,y,320,40,G) y=y+48
 
--- Log scan
-local scanLog=Instance.new("ScrollingFrame",Panel)
-scanLog.Position=UDim2.new(0,10,0,y)
-scanLog.Size=UDim2.new(0,340,0,80)
-scanLog.BackgroundColor3=Color3.fromRGB(6,6,12)
-scanLog.BorderSizePixel=0 scanLog.ScrollBarThickness=3
-scanLog.ScrollBarImageColor3=LIME scanLog.ZIndex=999
-rnd(scanLog,6)
-local scanLayout=Instance.new("UIListLayout",scanLog)
-scanLayout.SortOrder=Enum.SortOrder.LayoutOrder
-scanLayout.Padding=UDim.new(0,1)
-y=y+86
+-- Separator
+local sep=Instance.new("Frame",Panel)
+sep.Position=UDim2.new(0,10,0,y) sep.Size=UDim2.new(0,320,0,1)
+sep.BackgroundColor3=Color3.fromRGB(40,60,40) sep.BorderSizePixel=0 sep.ZIndex=51
+y=y+8
 
--- Step 2: Pilih Item Inventory
-mkLbl(Panel,"━━━ STEP 2: PILIH ITEM ━━━",10,y,340,18,11,GO) y=y+20
+mkLbl(Panel,"── INDIVIDUAL CONTROLS ──",10,y,320,16,10,GR) y=y+20
 
-local itemStatusLbl = mkLbl(Panel,"Item terpilih: --",10,y,340,16,10,GR) y=y+18
+-- AUTO FARM
+local farmBox=Instance.new("Frame",Panel)
+farmBox.Position=UDim2.new(0,10,0,y) farmBox.Size=UDim2.new(0,320,0,72)
+farmBox.BackgroundColor3=CA farmBox.BorderSizePixel=0 farmBox.ZIndex=51 rnd(farmBox,8)
+mkLbl(farmBox,"🌱 AUTO FARM",8,4,200,18,12,LIME)
+local farmStLbl=mkLbl(farmBox,"Status: OFF",8,22,200,14,9,GR)
+local farmBtn=mkBtn(farmBox,"OFF",236,4,76,28,Color3.fromRGB(40,40,60))
+farmBtn.TextSize=13 farmBtn.TextColor3=GR
+local farmSpeedLbl=mkLbl(farmBox,"Speed: Normal",8,40,150,14,9,GR)
+local farmFastBtn=mkBtn(farmBox,"Normal",8,52,70,18,Color3.fromRGB(30,60,30))
+farmFastBtn.TextSize=10
+local farmInstBtn=mkBtn(farmBox,"Instant",82,52,70,18,Color3.fromRGB(60,30,10))
+farmInstBtn.TextSize=10
+y=y+80
 
--- Daftar item GH umum
-local GH_ITEMS = {
-    -- Seeds
-    "Carrot Seed","Strawberry Seed","Blueberry Seed","Tomato Seed",
-    "Corn Seed","Watermelon Seed","Pumpkin Seed","Apple Seed",
-    "Bamboo Seed","Coconut Seed","Rose Seed","Sunflower Seed",
-    -- Crops (hasil panen)
-    "Carrot","Strawberry","Blueberry","Tomato","Corn",
-    "Watermelon","Pumpkin","Apple","Bamboo","Coconut",
-    -- Gear
-    "Watering Can","Shovel","Rake","Fertilizer","Basket",
-    -- Currency
-    "Coin","Coins","Gold","Money","Cash","Gem","Gems",
-    -- Generic
-    "Item","Resource","Material",
-}
+-- AUTO SELL (SPAM)
+local sellBox=Instance.new("Frame",Panel)
+sellBox.Position=UDim2.new(0,10,0,y) sellBox.Size=UDim2.new(0,320,0,72)
+sellBox.BackgroundColor3=CA sellBox.BorderSizePixel=0 sellBox.ZIndex=51 rnd(sellBox,8)
+mkLbl(sellBox,"💸 AUTO SELL SPAM",8,4,200,18,12,GO)
+local sellStLbl=mkLbl(sellBox,"Status: OFF",8,22,200,14,9,GR)
+local sellBtn=mkBtn(sellBox,"OFF",236,4,76,28,Color3.fromRGB(40,40,60))
+sellBtn.TextSize=13 sellBtn.TextColor3=GR
+local sellDelayLbl=mkLbl(sellBox,"Delay: 0.1s",8,40,150,14,9,GR)
+local sellFastBtn=mkBtn(sellBox,"0.1s",8,52,50,18,Color3.fromRGB(30,50,100))
+sellFastBtn.TextSize=10
+local sellUltraBtn=mkBtn(sellBox,"0.01s",62,52,56,18,Color3.fromRGB(100,20,20))
+sellUltraBtn.TextSize=10
+local sellInstBtn=mkBtn(sellBox,"0s",122,52,40,18,Color3.fromRGB(120,0,0))
+sellInstBtn.TextSize=10
+y=y+80
 
-local itemScroll=Instance.new("ScrollingFrame",Panel)
-itemScroll.Position=UDim2.new(0,10,0,y)
-itemScroll.Size=UDim2.new(0,340,0,80)
-itemScroll.BackgroundColor3=Color3.fromRGB(6,6,12)
-itemScroll.BorderSizePixel=0 itemScroll.ScrollBarThickness=3
-itemScroll.ScrollBarImageColor3=GO itemScroll.ZIndex=999
-rnd(itemScroll,6)
-local itemLayout=Instance.new("UIListLayout",itemScroll)
-itemLayout.SortOrder=Enum.SortOrder.LayoutOrder
-itemLayout.Padding=UDim.new(0,2)
-y=y+86
+-- REMOTE SCAN & SELL SPAM
+local remBox=Instance.new("Frame",Panel)
+remBox.Position=UDim2.new(0,10,0,y) remBox.Size=UDim2.new(0,320,0,90)
+remBox.BackgroundColor3=CA remBox.BorderSizePixel=0 remBox.ZIndex=51 rnd(remBox,8)
+mkLbl(remBox,"🔥 REMOTE SELL EXPLOIT",8,4,220,18,12,R)
+local remStLbl=mkLbl(remBox,"Remote ditemukan: 0",8,22,220,14,9,GR)
+local scanRemBtn=mkBtn(remBox,"🔍 Scan",236,4,76,28,Color3.fromRGB(30,70,160))
+scanRemBtn.TextSize=11
+local remSpamBtn=mkBtn(remBox,"OFF",236,36,76,28,Color3.fromRGB(40,40,60))
+remSpamBtn.TextSize=13 remSpamBtn.TextColor3=GR
+local remSpamLbl=mkLbl(remBox,"Spam remote sell: OFF",8,40,220,14,9,GR)
+local remCountLbl=mkLbl(remBox,"Total fire: 0",8,58,220,14,9,CY)
+local remLogLbl=mkLbl(remBox,"Remote: --",8,72,300,16,9,GR)
+y=y+98
 
-local selectedItem=nil
-local itemBtns={}
+-- TP KE SELL NPC
+local tpSellBtn=mkBtn(Panel,"📍 TP ke Sell NPC / Market",10,y,320,30,Color3.fromRGB(60,40,120))
+y=y+38
 
-for i,itm in ipairs(GH_ITEMS) do
-    local b=Instance.new("TextButton",itemScroll)
-    b.Size=UDim2.new(1,-4,0,22)
-    b.BackgroundColor3=Color3.fromRGB(14,14,24)
-    b.Text=itm b.TextColor3=W
-    b.Font=Enum.Font.Gotham b.TextSize=11
-    b.TextXAlignment=Enum.TextXAlignment.Left
-    b.BorderSizePixel=0 b.LayoutOrder=i b.ZIndex=9999
-    rnd(b,4)
-    local p2=Instance.new("UIPadding",b) p2.PaddingLeft=UDim.new(0,6)
-    table.insert(itemBtns,{btn=b,name=itm})
-    b.MouseButton1Click:Connect(function()
-        for _,ib in ipairs(itemBtns) do
-            ib.btn.BackgroundColor3=Color3.fromRGB(14,14,24)
-            ib.btn.TextColor3=W
-        end
-        b.BackgroundColor3=Color3.fromRGB(20,60,20)
-        b.TextColor3=LIME
-        selectedItem=itm
-        itemStatusLbl.Text="Item terpilih: "..itm
-        itemStatusLbl.TextColor3=LIME
-    end)
-end
+-- LOGS
+local logBox=Instance.new("ScrollingFrame",Panel)
+logBox.Position=UDim2.new(0,10,0,y) logBox.Size=UDim2.new(0,320,0,50)
+logBox.BackgroundColor3=Color3.fromRGB(6,6,12) logBox.BorderSizePixel=0
+logBox.ScrollBarThickness=3 logBox.ScrollBarImageColor3=LIME
+logBox.ZIndex=999 rnd(logBox,6)
+local logLayout=Instance.new("UIListLayout",logBox)
+logLayout.SortOrder=Enum.SortOrder.LayoutOrder
+logLayout.Padding=UDim.new(0,1)
 
-itemLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-    itemScroll.CanvasSize=UDim2.new(0,0,0,itemLayout.AbsoluteContentSize.Y+4)
-end)
-
--- Step 3: Jumlah & Dupe
-mkLbl(Panel,"━━━ STEP 3: DUPE ━━━",10,y,340,18,11,R) y=y+20
-
-local amtVal=1
-local amtLbl=mkLbl(Panel,"Jumlah: 1",10,y,200,16,10,GR) y=y+4
-local amtDec=mkBtn(Panel,"-10",10, y+14,60,26,Color3.fromRGB(120,40,20))
-local amtDec2=mkBtn(Panel,"-1", 74, y+14,50,26,Color3.fromRGB(100,40,20))
-local amtValLbl=Instance.new("TextLabel",Panel)
-amtValLbl.Position=UDim2.new(0,128,0,y+14)
-amtValLbl.Size=UDim2.new(0,54,0,26)
-amtValLbl.BackgroundTransparency=1
-amtValLbl.Text="1" amtValLbl.TextColor3=GO
-amtValLbl.Font=Enum.Font.GothamBold amtValLbl.TextSize=18
-amtValLbl.TextXAlignment=Enum.TextXAlignment.Center
-amtValLbl.ZIndex=999
-local amtInc2=mkBtn(Panel,"+1", 186,y+14,50,26,Color3.fromRGB(20,80,20))
-local amtInc =mkBtn(Panel,"+10",240,y+14,60,26,Color3.fromRGB(20,100,20))
-local amtMax =mkBtn(Panel,"MAX",304,y+14,46,26,Color3.fromRGB(140,80,0))
-y=y+46
-
-local function setAmt(v)
-    amtVal=math.clamp(v,1,9999)
-    amtValLbl.Text=tostring(amtVal)
-    amtLbl.Text="Jumlah: "..amtVal
-end
-amtDec.MouseButton1Click:Connect(function() setAmt(amtVal-10) end)
-amtDec2.MouseButton1Click:Connect(function() setAmt(amtVal-1) end)
-amtInc2.MouseButton1Click:Connect(function() setAmt(amtVal+1) end)
-amtInc.MouseButton1Click:Connect(function() setAmt(amtVal+10) end)
-amtMax.MouseButton1Click:Connect(function() setAmt(9999) end)
-
-local dupeStatusLbl=mkLbl(Panel,"Dupe status: Siap",10,y,340,16,10,GR) y=y+20
-local dupeBtn=mkBtn(Panel,"🔥 DUPE ITEM SEKARANG",10,y,340,36,G) y=y+42
-local autoDupeBtn=mkBtn(Panel,"🔁 AUTO DUPE (loop)",10,y,340,30,Color3.fromRGB(100,20,160)) y=y+36
-
--- ================================
--- LOGIKA SCAN REMOTE
--- ================================
-local foundRemotes = {}
-
-local function addLog(txt, col)
-    local l=Instance.new("TextLabel",scanLog)
-    l.Size=UDim2.new(1,-4,0,18)
-    l.BackgroundTransparency=1
+local logIdx=0
+local function addLog(txt,col)
+    logIdx=logIdx+1
+    local l=Instance.new("TextLabel",logBox)
+    l.Size=UDim2.new(1,-4,0,14) l.BackgroundTransparency=1
     l.Text=txt l.TextColor3=col or W
-    l.Font=Enum.Font.Gotham l.TextSize=10
+    l.Font=Enum.Font.Gotham l.TextSize=9
     l.TextXAlignment=Enum.TextXAlignment.Left
-    l.ZIndex=9999
-    local p2=Instance.new("UIPadding",l) p2.PaddingLeft=UDim.new(0,4)
-    -- Auto scroll ke bawah
+    l.LayoutOrder=logIdx l.ZIndex=9999
+    Instance.new("UIPadding",l).PaddingLeft=UDim.new(0,4)
     task.defer(function()
-        scanLog.CanvasPosition=Vector2.new(0,scanLayout.AbsoluteContentSize.Y)
+        logBox.CanvasPosition=Vector2.new(0,logLayout.AbsoluteContentSize.Y)
     end)
-end
-
-local function clearLog()
-    for _,v in ipairs(scanLog:GetChildren()) do
-        if v:IsA("TextLabel") then v:Destroy() end
+    -- Batas 30 log
+    if logIdx > 30 then
+        local children=logBox:GetChildren()
+        for _,c in ipairs(children) do
+            if c:IsA("TextLabel") then c:Destroy() break end
+        end
     end
 end
 
-scanBtn.MouseButton1Click:Connect(function()
-    foundRemotes={}
-    clearLog()
-    scanStatusLbl.Text="Status: Scanning..."
-    scanStatusLbl.TextColor3=GO
-    scanBtn.Text="⏳ Scanning..."
-    scanBtn.BackgroundColor3=GO
+-- ================================
+-- GET CHARACTER
+-- ================================
+local function getChar()
+    local c=P.Character if not c then return nil,nil,nil end
+    return c,c:FindFirstChildOfClass("Humanoid"),c:FindFirstChild("HumanoidRootPart")
+end
 
-    task.spawn(function()
-        -- Scan ReplicatedStorage
-        local checked=0
-        for _,v in ipairs(RSt:GetDescendants()) do
-            if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
-                local n=v.Name:lower()
-                -- Prioritaskan yang berkaitan dengan economy/item
-                local priority = 0
-                local keywords={"buy","sell","give","add","money","coin","gold","cash","gem","currency","item","plant","harvest","shop","purchase","reward","dupe","stack","amount","quantity","trade"}
-                for _,kw in ipairs(keywords) do
-                    if n:find(kw) then priority=priority+1 end
-                end
-                if priority > 0 then
-                    table.insert(foundRemotes,{remote=v, name=v.Name, priority=priority, type=v.ClassName})
-                    addLog("⭐["..v.ClassName.."] "..v.Name.." (score:"..priority..")", LIME)
-                else
-                    table.insert(foundRemotes,{remote=v, name=v.Name, priority=0, type=v.ClassName})
-                    addLog("  ["..v.ClassName.."] "..v.Name, GR)
-                end
-                checked=checked+1
-                task.wait(0.01)
+-- ================================
+-- MONITOR MONEY (tampilkan uang realtime)
+-- ================================
+local function getMoneyValue()
+    -- Coba berbagai cara dapat nilai money
+    local moneyNames={"Money","Coins","Cash","Gold","Gems","Currency","Bucks","Points","Shillings"}
+    -- Cek leaderstats
+    local ls=P:FindFirstChild("leaderstats")
+    if ls then
+        for _,name in ipairs(moneyNames) do
+            local v=ls:FindFirstChild(name)
+            if v then return v.Value,name end
+        end
+        -- Cek semua children leaderstats
+        for _,v in ipairs(ls:GetChildren()) do
+            if v:IsA("IntValue") or v:IsA("NumberValue") then
+                return v.Value, v.Name
             end
         end
+    end
+    -- Cek langsung di player
+    for _,name in ipairs(moneyNames) do
+        local v=P:FindFirstChild(name,true)
+        if v and (v:IsA("IntValue") or v:IsA("NumberValue")) then
+            return v.Value, name
+        end
+    end
+    return nil,"?"
+end
 
-        -- Sort by priority
-        table.sort(foundRemotes, function(a,b) return a.priority > b.priority end)
+task.spawn(function()
+    local lastMoney=nil
+    while true do
+        pcall(function()
+            local val,name=getMoneyValue()
+            if val then
+                if lastMoney and val~=lastMoney then
+                    local diff=val-lastMoney
+                    local sign=diff>0 and "+" or ""
+                    addLog(sign..diff.." "..name.." (total: "..val..")", diff>0 and LIME or R)
+                end
+                lastMoney=val
+                moneyLbl.Text="💰 "..name..": "..tostring(val)
+                moneyLbl.TextColor3=GO
+            end
+        end)
+        task.wait(0.5)
+    end
+end)
 
-        remoteCountLbl.Text="Remote ditemukan: "..#foundRemotes.." ("..checked.." total)"
-        remoteCountLbl.TextColor3=CY
-        scanStatusLbl.Text="✅ Scan selesai! Remote prioritas tinggi di atas"
-        scanStatusLbl.TextColor3=G
-        scanBtn.Text="🔍 Scan Semua Remote"
-        scanBtn.BackgroundColor3=Color3.fromRGB(30,70,160)
+-- ================================
+-- SCAN REMOTE SELL
+-- ================================
+local sellRemotes={}
+local sellKeywords={"sell","harvest","collect","submit","trade","exchange","shop","market","vendor","npc","give","complete","finish","turn"}
+
+local function scanSellRemotes()
+    sellRemotes={}
+    for _,v in ipairs(RSt:GetDescendants()) do
+        if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+            local n=v.Name:lower()
+            local score=0
+            for _,kw in ipairs(sellKeywords) do
+                if n:find(kw) then score=score+1 end
+            end
+            if score>0 then
+                table.insert(sellRemotes,{r=v,name=v.Name,score=score})
+            end
+        end
+    end
+    table.sort(sellRemotes,function(a,b) return a.score>b.score end)
+    remStLbl.Text="Remote ditemukan: "..#sellRemotes
+    remStLbl.TextColor3=LIME
+    for i=1,math.min(3,#sellRemotes) do
+        addLog("⭐ "..sellRemotes[i].name.." (score:"..sellRemotes[i].score..")",LIME)
+    end
+    return sellRemotes
+end
+
+scanRemBtn.MouseButton1Click:Connect(function()
+    scanRemBtn.Text="⏳"
+    task.spawn(function()
+        scanSellRemotes()
+        scanRemBtn.Text="✅ Done"
+        task.delay(2,function() scanRemBtn.Text="🔍 Scan" end)
     end)
 end)
 
 -- ================================
--- LOGIKA DUPE
+-- FUNGSI: FIRE SELL REMOTES
 -- ================================
-local autoDuping = false
+local totalFire=0
+local sellDelay=0.1
 
--- Semua kemungkinan format parameter yang dicoba
-local function buildParams(itemName, amount)
-    return {
-        -- Format 1: nama + jumlah
-        {itemName, amount},
-        -- Format 2: nama saja
-        {itemName},
-        -- Format 3: table item
-        {{name=itemName, amount=amount}},
-        {{name=itemName, count=amount}},
-        {{itemName=itemName, amount=amount}},
-        -- Format 4: jumlah saja
-        {amount},
-        -- Format 5: dengan player
-        {P, itemName, amount},
-        {P.Name, itemName, amount},
-        {P.UserId, itemName, amount},
-        -- Format 6: string saja
-        {itemName.."|"..amount},
-        -- Format 7: kosong (trigger event)
-        {},
-        -- Format 8: amount besar langsung
-        {itemName, 9999},
-        {itemName, math.huge},
-    }
-end
+local function fireSellRemotes()
+    if #sellRemotes==0 then scanSellRemotes() end
+    local c,hum,root=getChar()
 
-local function tryDupe(itemName, amount)
-    local success = 0
-    local tried = 0
+    -- Kumpulkan semua item di inventory player
+    local itemsToSell={}
+    local backpack=P:FindFirstChildOfClass("Backpack")
+    if backpack then
+        for _,tool in ipairs(backpack:GetChildren()) do
+            if tool:IsA("Tool") then table.insert(itemsToSell,tool.Name) end
+        end
+    end
+    if P.Character then
+        for _,tool in ipairs(P.Character:GetChildren()) do
+            if tool:IsA("Tool") then table.insert(itemsToSell,tool.Name) end
+        end
+    end
 
-    dupeStatusLbl.Text="🔥 Mencoba dupe: "..itemName
-    dupeStatusLbl.TextColor3=GO
+    -- Format parameter yang dicoba
+    local params={}
+    for _,itemName in ipairs(itemsToSell) do
+        table.insert(params,{itemName})
+        table.insert(params,{itemName,1})
+        table.insert(params,{itemName,9999})
+        table.insert(params,{{name=itemName}})
+        table.insert(params,{{name=itemName,amount=9999}})
+    end
+    -- Tambah param kosong dan umum
+    table.insert(params,{})
+    table.insert(params,{"all"})
+    table.insert(params,{"All"})
+    table.insert(params,{P})
+    table.insert(params,{P.Name})
 
-    local paramSets = buildParams(itemName, amount)
-
-    -- Coba semua remote yang ditemukan
-    for _, remInfo in ipairs(foundRemotes) do
-        local remote = remInfo.remote
+    for _,remInfo in ipairs(sellRemotes) do
+        local remote=remInfo.r
         if not remote or not remote.Parent then continue end
-
-        for _, params in ipairs(paramSets) do
-            tried = tried + 1
+        for _,param in ipairs(params) do
             pcall(function()
                 if remote:IsA("RemoteEvent") then
-                    remote:FireServer(table.unpack(params))
-                elseif remote:IsA("RemoteFunction") then
-                    remote:InvokeServer(table.unpack(params))
+                    remote:FireServer(table.unpack(param))
+                else
+                    remote:InvokeServer(table.unpack(param))
                 end
             end)
-            task.wait(0.02)
+            totalFire=totalFire+1
         end
+        task.wait(sellDelay)
     end
-
-    -- Juga coba langsung fire dengan nama umum
-    local commonRemoteNames = {
-        "AddItem","GiveItem","BuyItem","AddMoney","GiveMoney",
-        "AddCoins","GiveCoins","Purchase","AddCurrency",
-        "Sell","SellAll","HarvestAll","CollectAll",
-        "AddToInventory","GiveToPlayer","RewardPlayer",
-    }
-    for _, rName in ipairs(commonRemoteNames) do
-        local re = RSt:FindFirstChild(rName, true)
-        if re then
-            pcall(function()
-                if re:IsA("RemoteEvent") then
-                    re:FireServer(itemName, amount)
-                    re:FireServer(P, itemName, amount)
-                    re:FireServer({item=itemName, amount=amount})
-                elseif re:IsA("RemoteFunction") then
-                    re:InvokeServer(itemName, amount)
-                end
-            end)
-            tried = tried + 1
-        end
-    end
-
-    dupeStatusLbl.Text="✅ Selesai! "..tried.." kombinasi dicoba"
-    dupeStatusLbl.TextColor3=G
-    return tried
 end
 
-dupeBtn.MouseButton1Click:Connect(function()
-    if not selectedItem then
-        dupeStatusLbl.Text="⚠️ Pilih item dulu di Step 2!"
-        dupeStatusLbl.TextColor3=R
-        return
-    end
-    if #foundRemotes == 0 then
-        dupeStatusLbl.Text="⚠️ Scan remote dulu di Step 1!"
-        dupeStatusLbl.TextColor3=R
-        return
-    end
-    task.spawn(function()
-        dupeBtn.Text="⏳ Duping..."
-        dupeBtn.BackgroundColor3=GO
-        local tried = tryDupe(selectedItem, amtVal)
-        dupeBtn.Text="✅ Done! ("..tried.." dicoba)"
-        task.delay(3, function()
-            dupeBtn.Text="🔥 DUPE ITEM SEKARANG"
-            dupeBtn.BackgroundColor3=G
-        end)
-    end)
-end)
+-- ================================
+-- FUNGSI: AUTO FARM (TP ke semua tanaman)
+-- ================================
+local farmInstant=false
+local farmCount=0
 
--- AUTO DUPE LOOP
-autoDupeBtn.MouseButton1Click:Connect(function()
-    autoDuping = not autoDuping
-    if autoDuping then
-        autoDupeBtn.Text="⏹ STOP AUTO DUPE"
-        autoDupeBtn.BackgroundColor3=R
-        task.spawn(function()
-            while autoDuping do
-                if selectedItem and #foundRemotes > 0 then
-                    tryDupe(selectedItem, amtVal)
-                    task.wait(0.5)
-                else
-                    dupeStatusLbl.Text="⚠️ Pilih item & scan remote dulu!"
-                    dupeStatusLbl.TextColor3=R
-                    task.wait(1)
+local cropKeywords={
+    "plant","crop","harvest","tree","bush","flower","fruit",
+    "carrot","strawberry","blueberry","tomato","corn","watermelon",
+    "pumpkin","apple","bamboo","coconut","rose","sunflower",
+    "mushroom","pepper","beet","grape","mango","pineapple","wheat",
+    "seed","sprout","grown","ready","ripe","mature","plot","bed","farmplot"
+}
+
+local function doAutoFarm()
+    local c,hum,root=getChar() if not root then return end
+    farmCount=farmCount+1
+    local harvested=0
+
+    for _,obj in ipairs(workspace:GetDescendants()) do
+        local n=obj.Name:lower()
+        local match=false
+        for _,kw in ipairs(cropKeywords) do
+            if n:find(kw) then match=true break end
+        end
+        if not match then continue end
+
+        local part=nil
+        if obj:IsA("BasePart") or obj:IsA("MeshPart") then part=obj
+        elseif obj:IsA("Model") then part=obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+        end
+        if not part or not part.Parent then continue end
+
+        if farmInstant then
+            root.CFrame=CFrame.new(part.Position)+Vector3.new(0,3,0)
+            task.wait(0.05)
+        end
+
+        -- Fire touch
+        pcall(function() firetouchinterest(part,root,0) task.wait(0.02) firetouchinterest(part,root,1) end)
+
+        -- Fire ProximityPrompt
+        for _,pp in ipairs(obj:GetDescendants()) do
+            if pp:IsA("ProximityPrompt") then
+                pcall(function() fireproximityprompt(pp) end)
+            end
+        end
+
+        -- TP jika instant
+        if farmInstant then
+            root.CFrame=CFrame.new(part.Position)+Vector3.new(0,3,0)
+        end
+
+        harvested=harvested+1
+        if not farmInstant then task.wait(0.1) end
+    end
+
+    return harvested
+end
+
+-- ================================
+-- TP KE SELL NPC
+-- ================================
+local sellNPCKeywords={"shop","market","sell","vendor","merchant","trader","npc","store","bazaar","stall"}
+
+tpSellBtn.MouseButton1Click:Connect(function()
+    local c,hum,root=getChar() if not root then return end
+    -- Cari NPC sell terdekat
+    local nearest,nearDist=nil,math.huge
+    for _,obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Model") or obj:IsA("BasePart") then
+            local n=obj.Name:lower()
+            for _,kw in ipairs(sellNPCKeywords) do
+                if n:find(kw) then
+                    local part=obj
+                    if obj:IsA("Model") then part=obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart") end
+                    if part and part.Parent then
+                        local d=(part.Position-root.Position).Magnitude
+                        if d<nearDist then nearDist=d nearest=part end
+                    end
+                    break
                 end
             end
-        end)
+        end
+    end
+    if nearest then
+        root.CFrame=CFrame.new(nearest.Position)+Vector3.new(0,3,0)
+        -- Fire touch di NPC
+        pcall(function() firetouchinterest(nearest,root,0) task.wait(0.1) firetouchinterest(nearest,root,1) end)
+        -- ProximityPrompt
+        if nearest.Parent then
+            for _,pp in ipairs(nearest.Parent:GetDescendants()) do
+                if pp:IsA("ProximityPrompt") then pcall(function() fireproximityprompt(pp) end) end
+            end
+        end
+        tpSellBtn.Text="✅ TP ke NPC!"
+        addLog("TP ke: "..nearest.Name.." (dist:"..math.floor(nearDist)..")",LIME)
     else
-        autoDupeBtn.Text="🔁 AUTO DUPE (loop)"
-        autoDupeBtn.BackgroundColor3=Color3.fromRGB(100,20,160)
-        dupeStatusLbl.Text="⏹ Auto dupe berhenti"
-        dupeStatusLbl.TextColor3=GR
+        tpSellBtn.Text="⚠️ NPC tidak ketemu"
+        addLog("Sell NPC tidak ditemukan di workspace",R)
+    end
+    task.delay(2,function() tpSellBtn.Text="📍 TP ke Sell NPC / Market" end)
+end)
+
+-- ================================
+-- TOGGLE STATES
+-- ================================
+local autoFarmOn=false
+local autoSellOn=false
+local remSpamOn=false
+local loopCount=0
+local sellCount=0
+
+-- Toggle farm
+local function setFarm(state)
+    autoFarmOn=state
+    if state then
+        farmBtn.BackgroundColor3=G farmBtn.TextColor3=W farmBtn.Text="ON"
+        farmStLbl.Text="Status: ✅ Berjalan" farmStLbl.TextColor3=G
+    else
+        farmBtn.BackgroundColor3=Color3.fromRGB(40,40,60) farmBtn.TextColor3=GR farmBtn.Text="OFF"
+        farmStLbl.Text="Status: OFF" farmStLbl.TextColor3=GR
+    end
+end
+
+-- Toggle sell
+local function setSell(state)
+    autoSellOn=state
+    if state then
+        sellBtn.BackgroundColor3=GO sellBtn.TextColor3=W sellBtn.Text="ON"
+        sellStLbl.Text="Status: ✅ Berjalan" sellStLbl.TextColor3=GO
+    else
+        sellBtn.BackgroundColor3=Color3.fromRGB(40,40,60) sellBtn.TextColor3=GR sellBtn.Text="OFF"
+        sellStLbl.Text="Status: OFF" sellStLbl.TextColor3=GR
+    end
+end
+
+-- Toggle remote spam
+local function setRemSpam(state)
+    remSpamOn=state
+    if state then
+        remSpamBtn.BackgroundColor3=R remSpamBtn.TextColor3=W remSpamBtn.Text="ON"
+        remSpamLbl.Text="Spam remote sell: ✅ ON" remSpamLbl.TextColor3=R
+    else
+        remSpamBtn.BackgroundColor3=Color3.fromRGB(40,40,60) remSpamBtn.TextColor3=GR remSpamBtn.Text="OFF"
+        remSpamLbl.Text="Spam remote sell: OFF" remSpamLbl.TextColor3=GR
+    end
+end
+
+farmBtn.MouseButton1Click:Connect(function() setFarm(not autoFarmOn) end)
+sellBtn.MouseButton1Click:Connect(function() setSell(not autoSellOn) end)
+remSpamBtn.MouseButton1Click:Connect(function()
+    if not remSpamOn and #sellRemotes==0 then
+        task.spawn(function() scanSellRemotes() end)
+    end
+    setRemSpam(not remSpamOn)
+end)
+
+farmFastBtn.MouseButton1Click:Connect(function()
+    farmInstant=false
+    farmSpeedLbl.Text="Speed: Normal"
+    farmFastBtn.BackgroundColor3=Color3.fromRGB(30,80,30)
+    farmInstBtn.BackgroundColor3=Color3.fromRGB(60,30,10)
+end)
+farmInstBtn.MouseButton1Click:Connect(function()
+    farmInstant=true
+    farmSpeedLbl.Text="Speed: ⚡ Instant"
+    farmInstBtn.BackgroundColor3=Color3.fromRGB(160,60,10)
+    farmFastBtn.BackgroundColor3=Color3.fromRGB(30,60,30)
+end)
+
+sellFastBtn.MouseButton1Click:Connect(function() sellDelay=0.1 sellDelayLbl.Text="Delay: 0.1s" end)
+sellUltraBtn.MouseButton1Click:Connect(function() sellDelay=0.01 sellDelayLbl.Text="Delay: 0.01s ⚡" end)
+sellInstBtn.MouseButton1Click:Connect(function() sellDelay=0 sellDelayLbl.Text="Delay: 0s 🔥" end)
+
+-- ALL IN ONE toggle
+local allRunning=false
+allInOneBtn.MouseButton1Click:Connect(function()
+    allRunning=not allRunning
+    if allRunning then
+        allInOneBtn.Text="⏹ STOP ALL"
+        allInOneBtn.BackgroundColor3=R
+        -- Auto scan dulu
+        task.spawn(scanSellRemotes)
+        setFarm(true) setSell(true) setRemSpam(true)
+        farmInstant=true
+        sellDelay=0
+        farmSpeedLbl.Text="Speed: ⚡ Instant"
+        sellDelayLbl.Text="Delay: 0s 🔥"
+        statusLbl.Text="Status: 🔥 FULL AUTO BERJALAN"
+        statusLbl.TextColor3=LIME
+    else
+        allInOneBtn.Text="🚀 START ALL IN ONE"
+        allInOneBtn.BackgroundColor3=G
+        setFarm(false) setSell(false) setRemSpam(false)
+        allRunning=false
+        statusLbl.Text="Status: Berhenti"
+        statusLbl.TextColor3=GR
+    end
+end)
+
+-- ================================
+-- MAIN LOOP
+-- ================================
+task.spawn(function()
+    while true do
+        -- Auto Farm loop
+        if autoFarmOn then
+            pcall(function()
+                local harvested=doAutoFarm()
+                if harvested and harvested>0 then
+                    addLog("🌱 Farm: "..harvested.." item",LIME)
+                end
+            end)
+        end
+
+        -- Auto Sell + Remote Spam loop
+        if autoSellOn or remSpamOn then
+            pcall(function()
+                -- TP ke sell NPC dulu kalau ada
+                local c,hum,root=getChar()
+                if root then
+                    for _,obj in ipairs(workspace:GetDescendants()) do
+                        local n=obj.Name:lower()
+                        for _,kw in ipairs(sellNPCKeywords) do
+                            if n:find(kw) then
+                                local part=obj
+                                if obj:IsA("Model") then part=obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart") end
+                                if part and part.Parent then
+                                    local dist=(part.Position-root.Position).Magnitude
+                                    if dist<50 then
+                                        root.CFrame=CFrame.new(part.Position)+Vector3.new(0,3,0)
+                                        pcall(function() firetouchinterest(part,root,0) task.wait(0.02) firetouchinterest(part,root,1) end)
+                                    end
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+
+                -- Fire semua sell remote
+                if remSpamOn then
+                    fireSellRemotes()
+                    sellCount=sellCount+1
+                end
+
+                -- Update log
+                if remSpamOn then
+                    remCountLbl.Text="Total fire: "..totalFire
+                    if #sellRemotes>0 then
+                        remLogLbl.Text="Top: "..sellRemotes[1].name
+                        remLogLbl.TextColor3=LIME
+                    end
+                end
+            end)
+        end
+
+        if autoFarmOn or autoSellOn or remSpamOn then
+            loopCount=loopCount+1
+            loopLbl.Text="Loop: "..loopCount.."x  |  Sell: "..sellCount.."x  |  Fire: "..totalFire
+        end
+
+        task.wait(farmInstant and 0.3 or 1)
     end
 end)
