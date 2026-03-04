@@ -1,0 +1,474 @@
+-- Garden Horizons Item Dupe Script
+-- Scan RemoteEvents + coba dupe item
+-- Delta Compatible
+
+local Players = game:GetService("Players")
+local RS = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local P = Players.LocalPlayer
+local RSt = game:GetService("ReplicatedStorage")
+
+-- Hapus GUI lama
+pcall(function()
+    local old = (gethui and gethui() or P.PlayerGui):FindFirstChild("GH_Dupe")
+    if old then old:Destroy() end
+end)
+
+local sg = Instance.new("ScreenGui")
+sg.Name = "GH_Dupe"
+sg.ResetOnSpawn = false
+sg.DisplayOrder = 999
+sg.IgnoreGuiInset = true
+sg.Parent = gethui and gethui() or P.PlayerGui
+
+local W=Color3.fromRGB(255,255,255)
+local G=Color3.fromRGB(40,180,60)
+local R=Color3.fromRGB(220,50,50)
+local D=Color3.fromRGB(10,10,18)
+local CA=Color3.fromRGB(22,22,34)
+local GR=Color3.fromRGB(100,100,120)
+local GO=Color3.fromRGB(240,190,50)
+local CY=Color3.fromRGB(0,210,230)
+local LIME=Color3.fromRGB(100,220,60)
+
+local function rnd(p,r)
+    Instance.new("UICorner",p).CornerRadius=UDim.new(0,r or 8)
+end
+local function stk(p,c,t)
+    local s=Instance.new("UIStroke",p) s.Color=c or LIME s.Thickness=t or 1.5
+end
+local function mkBtn(par,txt,x,y,w,h,col)
+    local b=Instance.new("TextButton")
+    b.Position=UDim2.new(0,x,0,y)
+    b.Size=UDim2.new(0,w,0,h)
+    b.BackgroundColor3=col or Color3.fromRGB(40,40,70)
+    b.Text=txt b.TextColor3=W
+    b.Font=Enum.Font.GothamBold b.TextSize=11
+    b.BorderSizePixel=0 b.ZIndex=999
+    b.Parent=par rnd(b,7) return b
+end
+local function mkLbl(par,txt,x,y,w,h,sz,col)
+    local l=Instance.new("TextLabel")
+    l.Position=UDim2.new(0,x,0,y)
+    l.Size=UDim2.new(0,w,0,h)
+    l.BackgroundTransparency=1
+    l.Text=txt l.TextColor3=col or GR
+    l.Font=Enum.Font.GothamBold l.TextSize=sz or 11
+    l.TextXAlignment=Enum.TextXAlignment.Left
+    l.ZIndex=999 l.Parent=par return l
+end
+
+-- ================================
+-- MAIN PANEL
+-- ================================
+local Panel=Instance.new("Frame")
+Panel.Size=UDim2.new(0,360,0,500)
+Panel.Position=UDim2.new(0.5,-180,0.5,-250)
+Panel.BackgroundColor3=D
+Panel.BorderSizePixel=0
+Panel.ZIndex=50
+Panel.Parent=sg
+rnd(Panel,14)
+stk(Panel,LIME,2)
+
+-- Title
+local TBar=Instance.new("Frame",Panel)
+TBar.Size=UDim2.new(1,0,0,42)
+TBar.BackgroundColor3=Color3.fromRGB(10,24,10)
+TBar.BorderSizePixel=0 TBar.ZIndex=51
+rnd(TBar,14)
+Instance.new("Frame",TBar).Size=UDim2.new(1,0,0,14)
+local TFix=TBar:FindFirstChildWhichIsA("Frame")
+TFix.Position=UDim2.new(0,0,1,-14)
+TFix.BackgroundColor3=Color3.fromRGB(10,24,10)
+TFix.BorderSizePixel=0 TFix.ZIndex=51
+
+local TLbl=Instance.new("TextLabel",TBar)
+TLbl.Size=UDim2.new(1,-50,1,0)
+TLbl.Position=UDim2.new(0,12,0,0)
+TLbl.BackgroundTransparency=1
+TLbl.Text="🌱 GH Item Dupe Tool  •  ☰ drag"
+TLbl.TextColor3=LIME TLbl.Font=Enum.Font.GothamBold
+TLbl.TextSize=13 TLbl.TextXAlignment=Enum.TextXAlignment.Left
+TLbl.ZIndex=52
+
+-- Drag
+local drg,drs,drp=false,nil,nil
+TBar.InputBegan:Connect(function(i)
+    if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+        drg=true drs=i.Position drp=Panel.Position
+    end
+end)
+TBar.InputEnded:Connect(function(i)
+    if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then drg=false end
+end)
+UIS.InputChanged:Connect(function(i)
+    if drg and(i.UserInputType==Enum.UserInputType.MouseMove or i.UserInputType==Enum.UserInputType.Touch) then
+        local d=i.Position-drs
+        Panel.Position=UDim2.new(drp.X.Scale,drp.X.Offset+d.X,drp.Y.Scale,drp.Y.Offset+d.Y)
+    end
+end)
+
+-- Close btn
+local CloseBtn=Instance.new("TextButton",sg)
+CloseBtn.Size=UDim2.new(0,34,0,34)
+CloseBtn.BackgroundColor3=R
+CloseBtn.Text="✕" CloseBtn.TextColor3=W
+CloseBtn.Font=Enum.Font.GothamBold CloseBtn.TextSize=16
+CloseBtn.BorderSizePixel=0 CloseBtn.ZIndex=9999
+rnd(CloseBtn,8)
+
+local function fixClose()
+    local ap=Panel.AbsolutePosition local as=Panel.AbsoluteSize
+    CloseBtn.Position=UDim2.new(0,ap.X+as.X-38,0,ap.Y+4)
+end
+Panel:GetPropertyChangedSignal("AbsolutePosition"):Connect(fixClose)
+task.defer(fixClose)
+
+-- Open btn
+local OpenBtn=Instance.new("TextButton",sg)
+OpenBtn.Size=UDim2.new(0,50,0,50)
+OpenBtn.Position=UDim2.new(0,14,0.45,0)
+OpenBtn.BackgroundColor3=D OpenBtn.Text="🌱"
+OpenBtn.TextScaled=true OpenBtn.BorderSizePixel=0
+OpenBtn.ZIndex=9999 OpenBtn.Visible=false
+rnd(OpenBtn,25) stk(OpenBtn,LIME,2)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    Panel.Visible=false CloseBtn.Visible=false OpenBtn.Visible=true
+end)
+OpenBtn.MouseButton1Click:Connect(function()
+    Panel.Visible=true CloseBtn.Visible=true OpenBtn.Visible=false task.defer(fixClose)
+end)
+
+-- ================================
+-- KONTEN PANEL
+-- ================================
+local y = 50 -- posisi Y awal konten
+
+-- Step 1: Scan Remote
+mkLbl(Panel,"━━━ STEP 1: SCAN REMOTE ━━━",10,y,340,18,11,LIME) y=y+20
+
+local scanStatusLbl = mkLbl(Panel,"Status: Belum scan",10,y,340,16,10,GR) y=y+18
+local remoteCountLbl= mkLbl(Panel,"Remote ditemukan: 0",10,y,340,16,10,CY) y=y+20
+
+local scanBtn = mkBtn(Panel,"🔍 Scan Semua Remote",10,y,340,32,Color3.fromRGB(30,70,160)) y=y+38
+
+-- Log scan
+local scanLog=Instance.new("ScrollingFrame",Panel)
+scanLog.Position=UDim2.new(0,10,0,y)
+scanLog.Size=UDim2.new(0,340,0,80)
+scanLog.BackgroundColor3=Color3.fromRGB(6,6,12)
+scanLog.BorderSizePixel=0 scanLog.ScrollBarThickness=3
+scanLog.ScrollBarImageColor3=LIME scanLog.ZIndex=999
+rnd(scanLog,6)
+local scanLayout=Instance.new("UIListLayout",scanLog)
+scanLayout.SortOrder=Enum.SortOrder.LayoutOrder
+scanLayout.Padding=UDim.new(0,1)
+y=y+86
+
+-- Step 2: Pilih Item Inventory
+mkLbl(Panel,"━━━ STEP 2: PILIH ITEM ━━━",10,y,340,18,11,GO) y=y+20
+
+local itemStatusLbl = mkLbl(Panel,"Item terpilih: --",10,y,340,16,10,GR) y=y+18
+
+-- Daftar item GH umum
+local GH_ITEMS = {
+    -- Seeds
+    "Carrot Seed","Strawberry Seed","Blueberry Seed","Tomato Seed",
+    "Corn Seed","Watermelon Seed","Pumpkin Seed","Apple Seed",
+    "Bamboo Seed","Coconut Seed","Rose Seed","Sunflower Seed",
+    -- Crops (hasil panen)
+    "Carrot","Strawberry","Blueberry","Tomato","Corn",
+    "Watermelon","Pumpkin","Apple","Bamboo","Coconut",
+    -- Gear
+    "Watering Can","Shovel","Rake","Fertilizer","Basket",
+    -- Currency
+    "Coin","Coins","Gold","Money","Cash","Gem","Gems",
+    -- Generic
+    "Item","Resource","Material",
+}
+
+local itemScroll=Instance.new("ScrollingFrame",Panel)
+itemScroll.Position=UDim2.new(0,10,0,y)
+itemScroll.Size=UDim2.new(0,340,0,80)
+itemScroll.BackgroundColor3=Color3.fromRGB(6,6,12)
+itemScroll.BorderSizePixel=0 itemScroll.ScrollBarThickness=3
+itemScroll.ScrollBarImageColor3=GO itemScroll.ZIndex=999
+rnd(itemScroll,6)
+local itemLayout=Instance.new("UIListLayout",itemScroll)
+itemLayout.SortOrder=Enum.SortOrder.LayoutOrder
+itemLayout.Padding=UDim.new(0,2)
+y=y+86
+
+local selectedItem=nil
+local itemBtns={}
+
+for i,itm in ipairs(GH_ITEMS) do
+    local b=Instance.new("TextButton",itemScroll)
+    b.Size=UDim2.new(1,-4,0,22)
+    b.BackgroundColor3=Color3.fromRGB(14,14,24)
+    b.Text=itm b.TextColor3=W
+    b.Font=Enum.Font.Gotham b.TextSize=11
+    b.TextXAlignment=Enum.TextXAlignment.Left
+    b.BorderSizePixel=0 b.LayoutOrder=i b.ZIndex=9999
+    rnd(b,4)
+    local p2=Instance.new("UIPadding",b) p2.PaddingLeft=UDim.new(0,6)
+    table.insert(itemBtns,{btn=b,name=itm})
+    b.MouseButton1Click:Connect(function()
+        for _,ib in ipairs(itemBtns) do
+            ib.btn.BackgroundColor3=Color3.fromRGB(14,14,24)
+            ib.btn.TextColor3=W
+        end
+        b.BackgroundColor3=Color3.fromRGB(20,60,20)
+        b.TextColor3=LIME
+        selectedItem=itm
+        itemStatusLbl.Text="Item terpilih: "..itm
+        itemStatusLbl.TextColor3=LIME
+    end)
+end
+
+itemLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    itemScroll.CanvasSize=UDim2.new(0,0,0,itemLayout.AbsoluteContentSize.Y+4)
+end)
+
+-- Step 3: Jumlah & Dupe
+mkLbl(Panel,"━━━ STEP 3: DUPE ━━━",10,y,340,18,11,R) y=y+20
+
+local amtVal=1
+local amtLbl=mkLbl(Panel,"Jumlah: 1",10,y,200,16,10,GR) y=y+4
+local amtDec=mkBtn(Panel,"-10",10, y+14,60,26,Color3.fromRGB(120,40,20))
+local amtDec2=mkBtn(Panel,"-1", 74, y+14,50,26,Color3.fromRGB(100,40,20))
+local amtValLbl=Instance.new("TextLabel",Panel)
+amtValLbl.Position=UDim2.new(0,128,0,y+14)
+amtValLbl.Size=UDim2.new(0,54,0,26)
+amtValLbl.BackgroundTransparency=1
+amtValLbl.Text="1" amtValLbl.TextColor3=GO
+amtValLbl.Font=Enum.Font.GothamBold amtValLbl.TextSize=18
+amtValLbl.TextXAlignment=Enum.TextXAlignment.Center
+amtValLbl.ZIndex=999
+local amtInc2=mkBtn(Panel,"+1", 186,y+14,50,26,Color3.fromRGB(20,80,20))
+local amtInc =mkBtn(Panel,"+10",240,y+14,60,26,Color3.fromRGB(20,100,20))
+local amtMax =mkBtn(Panel,"MAX",304,y+14,46,26,Color3.fromRGB(140,80,0))
+y=y+46
+
+local function setAmt(v)
+    amtVal=math.clamp(v,1,9999)
+    amtValLbl.Text=tostring(amtVal)
+    amtLbl.Text="Jumlah: "..amtVal
+end
+amtDec.MouseButton1Click:Connect(function() setAmt(amtVal-10) end)
+amtDec2.MouseButton1Click:Connect(function() setAmt(amtVal-1) end)
+amtInc2.MouseButton1Click:Connect(function() setAmt(amtVal+1) end)
+amtInc.MouseButton1Click:Connect(function() setAmt(amtVal+10) end)
+amtMax.MouseButton1Click:Connect(function() setAmt(9999) end)
+
+local dupeStatusLbl=mkLbl(Panel,"Dupe status: Siap",10,y,340,16,10,GR) y=y+20
+local dupeBtn=mkBtn(Panel,"🔥 DUPE ITEM SEKARANG",10,y,340,36,G) y=y+42
+local autoDupeBtn=mkBtn(Panel,"🔁 AUTO DUPE (loop)",10,y,340,30,Color3.fromRGB(100,20,160)) y=y+36
+
+-- ================================
+-- LOGIKA SCAN REMOTE
+-- ================================
+local foundRemotes = {}
+
+local function addLog(txt, col)
+    local l=Instance.new("TextLabel",scanLog)
+    l.Size=UDim2.new(1,-4,0,18)
+    l.BackgroundTransparency=1
+    l.Text=txt l.TextColor3=col or W
+    l.Font=Enum.Font.Gotham l.TextSize=10
+    l.TextXAlignment=Enum.TextXAlignment.Left
+    l.ZIndex=9999
+    local p2=Instance.new("UIPadding",l) p2.PaddingLeft=UDim.new(0,4)
+    -- Auto scroll ke bawah
+    task.defer(function()
+        scanLog.CanvasPosition=Vector2.new(0,scanLayout.AbsoluteContentSize.Y)
+    end)
+end
+
+local function clearLog()
+    for _,v in ipairs(scanLog:GetChildren()) do
+        if v:IsA("TextLabel") then v:Destroy() end
+    end
+end
+
+scanBtn.MouseButton1Click:Connect(function()
+    foundRemotes={}
+    clearLog()
+    scanStatusLbl.Text="Status: Scanning..."
+    scanStatusLbl.TextColor3=GO
+    scanBtn.Text="⏳ Scanning..."
+    scanBtn.BackgroundColor3=GO
+
+    task.spawn(function()
+        -- Scan ReplicatedStorage
+        local checked=0
+        for _,v in ipairs(RSt:GetDescendants()) do
+            if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                local n=v.Name:lower()
+                -- Prioritaskan yang berkaitan dengan economy/item
+                local priority = 0
+                local keywords={"buy","sell","give","add","money","coin","gold","cash","gem","currency","item","plant","harvest","shop","purchase","reward","dupe","stack","amount","quantity","trade"}
+                for _,kw in ipairs(keywords) do
+                    if n:find(kw) then priority=priority+1 end
+                end
+                if priority > 0 then
+                    table.insert(foundRemotes,{remote=v, name=v.Name, priority=priority, type=v.ClassName})
+                    addLog("⭐["..v.ClassName.."] "..v.Name.." (score:"..priority..")", LIME)
+                else
+                    table.insert(foundRemotes,{remote=v, name=v.Name, priority=0, type=v.ClassName})
+                    addLog("  ["..v.ClassName.."] "..v.Name, GR)
+                end
+                checked=checked+1
+                task.wait(0.01)
+            end
+        end
+
+        -- Sort by priority
+        table.sort(foundRemotes, function(a,b) return a.priority > b.priority end)
+
+        remoteCountLbl.Text="Remote ditemukan: "..#foundRemotes.." ("..checked.." total)"
+        remoteCountLbl.TextColor3=CY
+        scanStatusLbl.Text="✅ Scan selesai! Remote prioritas tinggi di atas"
+        scanStatusLbl.TextColor3=G
+        scanBtn.Text="🔍 Scan Semua Remote"
+        scanBtn.BackgroundColor3=Color3.fromRGB(30,70,160)
+    end)
+end)
+
+-- ================================
+-- LOGIKA DUPE
+-- ================================
+local autoDuping = false
+
+-- Semua kemungkinan format parameter yang dicoba
+local function buildParams(itemName, amount)
+    return {
+        -- Format 1: nama + jumlah
+        {itemName, amount},
+        -- Format 2: nama saja
+        {itemName},
+        -- Format 3: table item
+        {{name=itemName, amount=amount}},
+        {{name=itemName, count=amount}},
+        {{itemName=itemName, amount=amount}},
+        -- Format 4: jumlah saja
+        {amount},
+        -- Format 5: dengan player
+        {P, itemName, amount},
+        {P.Name, itemName, amount},
+        {P.UserId, itemName, amount},
+        -- Format 6: string saja
+        {itemName.."|"..amount},
+        -- Format 7: kosong (trigger event)
+        {},
+        -- Format 8: amount besar langsung
+        {itemName, 9999},
+        {itemName, math.huge},
+    }
+end
+
+local function tryDupe(itemName, amount)
+    local success = 0
+    local tried = 0
+
+    dupeStatusLbl.Text="🔥 Mencoba dupe: "..itemName
+    dupeStatusLbl.TextColor3=GO
+
+    local paramSets = buildParams(itemName, amount)
+
+    -- Coba semua remote yang ditemukan
+    for _, remInfo in ipairs(foundRemotes) do
+        local remote = remInfo.remote
+        if not remote or not remote.Parent then continue end
+
+        for _, params in ipairs(paramSets) do
+            tried = tried + 1
+            pcall(function()
+                if remote:IsA("RemoteEvent") then
+                    remote:FireServer(table.unpack(params))
+                elseif remote:IsA("RemoteFunction") then
+                    remote:InvokeServer(table.unpack(params))
+                end
+            end)
+            task.wait(0.02)
+        end
+    end
+
+    -- Juga coba langsung fire dengan nama umum
+    local commonRemoteNames = {
+        "AddItem","GiveItem","BuyItem","AddMoney","GiveMoney",
+        "AddCoins","GiveCoins","Purchase","AddCurrency",
+        "Sell","SellAll","HarvestAll","CollectAll",
+        "AddToInventory","GiveToPlayer","RewardPlayer",
+    }
+    for _, rName in ipairs(commonRemoteNames) do
+        local re = RSt:FindFirstChild(rName, true)
+        if re then
+            pcall(function()
+                if re:IsA("RemoteEvent") then
+                    re:FireServer(itemName, amount)
+                    re:FireServer(P, itemName, amount)
+                    re:FireServer({item=itemName, amount=amount})
+                elseif re:IsA("RemoteFunction") then
+                    re:InvokeServer(itemName, amount)
+                end
+            end)
+            tried = tried + 1
+        end
+    end
+
+    dupeStatusLbl.Text="✅ Selesai! "..tried.." kombinasi dicoba"
+    dupeStatusLbl.TextColor3=G
+    return tried
+end
+
+dupeBtn.MouseButton1Click:Connect(function()
+    if not selectedItem then
+        dupeStatusLbl.Text="⚠️ Pilih item dulu di Step 2!"
+        dupeStatusLbl.TextColor3=R
+        return
+    end
+    if #foundRemotes == 0 then
+        dupeStatusLbl.Text="⚠️ Scan remote dulu di Step 1!"
+        dupeStatusLbl.TextColor3=R
+        return
+    end
+    task.spawn(function()
+        dupeBtn.Text="⏳ Duping..."
+        dupeBtn.BackgroundColor3=GO
+        local tried = tryDupe(selectedItem, amtVal)
+        dupeBtn.Text="✅ Done! ("..tried.." dicoba)"
+        task.delay(3, function()
+            dupeBtn.Text="🔥 DUPE ITEM SEKARANG"
+            dupeBtn.BackgroundColor3=G
+        end)
+    end)
+end)
+
+-- AUTO DUPE LOOP
+autoDupeBtn.MouseButton1Click:Connect(function()
+    autoDuping = not autoDuping
+    if autoDuping then
+        autoDupeBtn.Text="⏹ STOP AUTO DUPE"
+        autoDupeBtn.BackgroundColor3=R
+        task.spawn(function()
+            while autoDuping do
+                if selectedItem and #foundRemotes > 0 then
+                    tryDupe(selectedItem, amtVal)
+                    task.wait(0.5)
+                else
+                    dupeStatusLbl.Text="⚠️ Pilih item & scan remote dulu!"
+                    dupeStatusLbl.TextColor3=R
+                    task.wait(1)
+                end
+            end
+        end)
+    else
+        autoDupeBtn.Text="🔁 AUTO DUPE (loop)"
+        autoDupeBtn.BackgroundColor3=Color3.fromRGB(100,20,160)
+        dupeStatusLbl.Text="⏹ Auto dupe berhenti"
+        dupeStatusLbl.TextColor3=GR
+    end
+end)
